@@ -8,6 +8,7 @@
       "DOM.Iterable",
       "esnext"
     ],
+    "target": "ES2024",
     "types": [],
     "composite": false,
     "esModuleInterop": true,

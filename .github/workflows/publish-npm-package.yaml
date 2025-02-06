@@ -10,7 +10,8 @@ on:
 
 jobs:
   build:
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    # runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       packages: write # Needed for publishing

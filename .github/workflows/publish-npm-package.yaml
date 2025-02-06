@@ -15,13 +15,34 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "22.x"
-          registry-url: "https://registry.npmjs.org"
-      - run: cd ./packages/comfyui-workflow && npm install
-      - run: cd ./packages/comfyui-workflow && npm ci --provenance --access public
+          node-version: "latest"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build TypeScript
+        run: |
+          npm run build
+          mkdir dist-release
+          mv dist/* dist-release/
+
+      - name: Publish to GitHub Packages
+        run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-release/*
+          tag_name: ${{ github.ref_name }}
+          body: "Automated release for ${{ github.ref_name }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

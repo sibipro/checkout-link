@@ -1,5 +1,5 @@
 {
-  "name": "build-checkout-link",
+  "name": "@sibipro/build-checkout-link",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

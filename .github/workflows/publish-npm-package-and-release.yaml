@@ -30,6 +30,9 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Test (is that important?)
+        run: npm test
+
       - name: Build TypeScript
         run: npm run build --declaration
 

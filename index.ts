@@ -1,4 +1,4 @@
-import { strict as assert } from 'assert';
+import { strict as assert } from "node:assert";
 
 interface Props {
   /**
@@ -142,30 +142,20 @@ interface Props {
   }[];
 }
 
-export const buildCheckoutLink = ({
-  addressSearch,
-  specialInstructions,
-  poNumber,
-  contactInfo,
-  canEdit,
-  returnTo,
-  source,
-  products,
-  propertyId,
-}: Props = {}) => {
-  const url = new URL(`/?v=3`, 'https://checkout.sibipro.com');
+export const buildCheckoutLink = ({ addressSearch, specialInstructions, poNumber, contactInfo, canEdit, returnTo, source, products, propertyId }: Props = {}) => {
+  const url = new URL(`/?v=3`, "https://checkout.sibipro.com");
 
-  if (addressSearch) url.searchParams.set('addressSearch', addressSearch);
-  if (specialInstructions) url.searchParams.set('specialInstructions', specialInstructions);
-  if (poNumber) url.searchParams.set('poNumber', poNumber);
-  if (contactInfo?.firstName) url.searchParams.set('firstName', contactInfo.firstName);
-  if (contactInfo?.lastName) url.searchParams.set('lastName', contactInfo.lastName);
-  if (contactInfo?.email) url.searchParams.set('email', contactInfo.email);
-  if (contactInfo?.phone) url.searchParams.set('phone', contactInfo.phone);
-  if (returnTo) url.searchParams.set('returnTo', returnTo);
-  if (source) url.searchParams.set('source', source);
-  if (propertyId) url.searchParams.set('propertyId', propertyId);
-  if (canEdit === false) url.searchParams.set('canEdit', 'false');
+  if (addressSearch) url.searchParams.set("addressSearch", addressSearch);
+  if (specialInstructions) url.searchParams.set("specialInstructions", specialInstructions);
+  if (poNumber) url.searchParams.set("poNumber", poNumber);
+  if (contactInfo?.firstName) url.searchParams.set("firstName", contactInfo.firstName);
+  if (contactInfo?.lastName) url.searchParams.set("lastName", contactInfo.lastName);
+  if (contactInfo?.email) url.searchParams.set("email", contactInfo.email);
+  if (contactInfo?.phone) url.searchParams.set("phone", contactInfo.phone);
+  if (returnTo) url.searchParams.set("returnTo", returnTo);
+  if (source) url.searchParams.set("source", source);
+  if (propertyId) url.searchParams.set("propertyId", propertyId);
+  if (canEdit === false) url.searchParams.set("canEdit", "false");
 
   let maxUrlId = findMaxUrlId(products?.map((product) => product.urlId) ?? []);
 
@@ -206,7 +196,7 @@ export const buildCheckoutLink = ({
     if (paymentMethodId) url.searchParams.set(`${key}.paymentMethodId`, paymentMethodId);
     if (quantity && quantity !== 1) url.searchParams.set(`${key}.quantity`, quantity.toString());
     if (unitOfMeasure) url.searchParams.set(`${key}.unit`, unitOfMeasure);
-    if (offeredWarranty) url.searchParams.set(`${key}.offeredWarranty`, 'true');
+    if (offeredWarranty) url.searchParams.set(`${key}.offeredWarranty`, "true");
 
     addonIds.forEach((addonId) => {
       url.searchParams.append(`${key}.addonId`, addonId);
@@ -237,6 +227,6 @@ const isNotNaN = (value: number) => !Number.isNaN(value);
 
 export class ReceivedBothFulfillmentMethodAndFulfillmentMethodId extends Error {
   constructor() {
-    super('fulfillmentMethod and fulfillmentMethodId are mutually exclusive, received both');
+    super("fulfillmentMethod and fulfillmentMethodId are mutually exclusive, received both");
   }
 }

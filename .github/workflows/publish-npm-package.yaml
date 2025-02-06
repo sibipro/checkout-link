@@ -19,7 +19,7 @@ jobs:
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v4
         with:
-          node-version: "21.x"
+          node-version: "22.x"
           registry-url: "https://registry.npmjs.org"
       - run: cd ./packages/comfyui-workflow && npm install
       - run: cd ./packages/comfyui-workflow && npm ci --provenance --access public

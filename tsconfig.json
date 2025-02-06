@@ -1,27 +1,28 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
   "compilerOptions": {
-    // Enable latest features
     "lib": [
-      "ESNext"
+      "ES2023",
+      "DOM",
+      "DOM.Iterable",
+      "esnext"
     ],
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-    // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
-    // Best practices
-    "strict": true,
-    "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": false,
-    // Some stricter flags (disabled by default)
+    "types": [],
+    "composite": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "moduleResolution": "node",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "incremental": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
 }

@@ -1,0 +1,44 @@
+name: Release TypeScript Library
+
+on:
+  push:
+    tags:
+      - "v*"  # Run this workflow on version tags (e.g., v1.0.0)
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+          registry-url: "https://npm.pkg.github.com"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build TypeScript
+        run: |
+          npm run build
+          mkdir dist-release
+          mv dist/* dist-release/
+
+      - name: Publish to GitHub Packages
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Build Artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist-release/*
+          tag_name: ${{ github.ref_name }}
+          body: "Automated release for ${{ github.ref_name }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "./package.json"
+      - "package.json"
       - ".github/workflows/publish-npm-package.yml"
 
 jobs:
@@ -13,7 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write # Needed for publishing
       id-token: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

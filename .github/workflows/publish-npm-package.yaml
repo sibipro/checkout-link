@@ -33,8 +33,6 @@ jobs:
       - name: Build TypeScript
         run: |
           npm run build
-          mkdir dist-release
-          mv dist/* dist-release/
 
       - name: Publish to GitHub Packages
         run: npm publish --access public
@@ -44,7 +42,7 @@ jobs:
       - name: Upload Build Artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist-release/*
+          files: dist/*
           tag_name: ${{ github.ref_name }}
           body: "Automated release for ${{ github.ref_name }}"
         env:

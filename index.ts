@@ -1,7 +1,7 @@
-const assert = (condition: boolean, message: string) => {
-  if (!condition) {
-    throw new Error(message);
-  }
+const assert = (condition: boolean, message: string | Error) => {
+  if (condition) return;
+  if (typeof message === "string") throw new Error(message);
+  throw message;
 };
 
 interface Props {

@@ -30,12 +30,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Build TypeScript and Types
-        run: |
-          npm run build
-          tsc --declaration --emitDeclarationOnly --outDir dist/
+      - name: Build TypeScript
+        run: npm run build --declaration
 
-      - name: Upload Build Artifacts (JS + TypeScript Types)
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -85,12 +83,10 @@ jobs:
           name: dist
           path: dist/
 
-      - name: Upload Build Artifacts (JS + TypeScript Types) to GitHub Release
+      - name: Upload Build Artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files:
-            - dist/*
-            - dist/**/*.d.ts
+          files: dist/**
           tag_name: ${{ github.ref_name }}
           body: "Automated release for ${{ github.ref_name }}"
         env:

@@ -120,7 +120,11 @@ jobs:
 
           # Create a new orphan branch for `cdn`
           git checkout --orphan cdn
+
           git rm -rf .  # Remove all files
+          # checkout package.json
+          git checkout package.json
+
           mv dist/* .  # Move compiled files to root
 
           git add .

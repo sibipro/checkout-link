@@ -94,3 +94,35 @@ jobs:
           body: "Automated release for ${{ github.ref_name }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deploy_cdn:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write # Needed for pushing to another branch
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure we can push a new branch
+
+      - name: Download Built Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Push to `cdn` Branch
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Create a new orphan branch for `cdn`
+          git checkout --orphan cdn
+          git rm -rf .  # Remove all files
+          mv dist/* .  # Move compiled files to root
+
+          git add .
+          git commit -m "Deploy compiled assets to cdn branch"
+          git push --force origin cdn  # Force push the `cdn` branch

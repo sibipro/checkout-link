@@ -123,7 +123,7 @@ jobs:
 
           git rm -rf .  # Remove all files
           # checkout package.json
-          git checkout package.json
+          git checkout ${{ github.ref_name }} package.json
 
           mv dist/* .  # Move compiled files to root
 

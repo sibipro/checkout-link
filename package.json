@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "types": "index.d.ts",
+  "type": "module",
   "scripts": {
     "test": "vitest",
     "type-check": "tsc --noEmit",

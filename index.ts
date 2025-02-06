@@ -1,4 +1,8 @@
-import { assert } from "console";
+const assert = (condition: boolean, message: string) => {
+  if (!condition) {
+    throw new Error(message);
+  }
+};
 
 interface Props {
   /**

@@ -4,13 +4,13 @@ on:
   push:
     branches:
       - main
-    # paths:
-    #   - "package.json"
-    #   - ".github/workflows/publish-npm-package.yml"
+    paths:
+      - "package.json"
+      - ".github/workflows/"
 
 jobs:
   build:
-    runs-on: blacksmith-ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     permissions:
       contents: read
       packages: write # Needed for publishing

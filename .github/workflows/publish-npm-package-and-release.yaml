@@ -126,3 +126,8 @@ jobs:
           git add .
           git commit -m "Deploy compiled assets to cdn branch"
           git push --force origin cdn  # Force push the `cdn` branch
+          # get the package.json version
+          version=$(jq -r '.version' package.json)
+          # create a new tag
+          git tag $version
+          git push origin $version

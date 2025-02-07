@@ -98,5 +98,6 @@ jobs:
           git commit -m "Force push from Github Actions (so jsdelivr can crawl it. It does not crawl github releases. afaik)"
           git push --force origin cdn
           version=v$(jq -r '.version' package.json)
+          git tag -d $version
           git tag $version -a -s -m "Release $version from Github Actions. This is a force push. This is done because jsdelivr does not crawl github releases. Afaik."
           git push --force origin $version

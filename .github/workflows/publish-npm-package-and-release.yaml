@@ -34,6 +34,7 @@ jobs:
   publish_npm:
     needs: [test, build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
+    continue-on-error: true
     permissions:
       packages: write
     steps:
@@ -46,7 +47,7 @@ jobs:
         with:
           name: dist
           path: dist/
-      - run: npm publish --access public
+      - run: npm publish --access public --force
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -64,7 +65,7 @@ jobs:
       - name: Get version
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2.2.1
         with:
           files: dist/**
           tag_name: v${{ steps.version.outputs.version }}

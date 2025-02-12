@@ -1,5 +1,5 @@
 {
-  "name": "@sibipro/build-checkout-link-public",
+  "name": "@sibipro/build-checkout-link",
   "version": "1.0.8",
   "description": "",
   "main": "index.js",
@@ -18,8 +18,5 @@
     "immer": "^10.1.1",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }

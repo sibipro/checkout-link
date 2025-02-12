@@ -74,32 +74,3 @@ jobs:
           body: "Release v${{ steps.version.outputs.version }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  deploy_cdn:
-    needs: [test, build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-      - name: Deploy to CDN
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan cdn
-          git rm -rf .
-          git checkout ${{ github.ref_name }} package.json
-          mv dist/* .
-          git add .
-          git commit -m "Force push from Github Actions (so jsdelivr can crawl it. It does not crawl github releases. afaik)"
-          git push --force origin cdn
-          version=v$(jq -r '.version' package.json)
-          git tag -d $version
-          git tag $version -a -s -m "Release $version from Github Actions. This is a force push. This is done because jsdelivr does not crawl github releases. Afaik."
-          git push --force origin $version

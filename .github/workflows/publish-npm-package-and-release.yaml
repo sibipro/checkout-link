@@ -52,7 +52,7 @@ jobs:
           npm unpublish $package@$version
           npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   release:
     needs: [test, build]

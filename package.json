@@ -1,0 +1,22 @@
+{
+  "name": "@sibipro/checkout-link",
+  "version": "1.0.12",
+  "description": "",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "build": "tsc --declaration"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "immer": "^10.1.1",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

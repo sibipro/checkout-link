@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: 22
       - run: npm ci --declaration
+      - run: npm run build
       - uses: actions/upload-artifact@v4
         with:
           name: dist

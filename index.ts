@@ -127,6 +127,7 @@ interface Props {
     /**
      * Titles of addons to include with this product. If omitted, no addons will be included (unless specified by `addonIds`).
      * The user will still be able to select them during checkout. Must be valid addon titles that are compatible with this product.
+     * If both addonTitles and addonIds are provided, the addonTitles will be ignored.
      *
      * ![typical addon](https://github.com/loqwai/cdn/blob/main/bear-fridge.png?raw=true)
      */
@@ -206,9 +207,11 @@ export const buildCheckoutLink = ({ addressSearch, specialInstructions, poNumber
       url.searchParams.append(`${key}.addonId`, addonId);
     });
 
-    addonTitles.forEach((addonTitle) => {
-      url.searchParams.append(`${key}.addonTitle`, addonTitle);
-    });
+    if (addonIds.length === 0) {
+      addonTitles.forEach((addonTitle) => {
+        url.searchParams.append(`${key}.addonTitle`, addonTitle);
+      });
+    }
 
     options.forEach((option) => {
       url.searchParams.append(`${key}.option`, `${option.key},${option.value}`);

@@ -34,12 +34,17 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           ref: main
           fetch-depth: 1
+          sparse-checkout: |
+            package.json
+            pnpm-lock.yaml
+            packages/*/package.json
+            apps/*/package.json
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update -r "@sibipro/checkout-link" -- --lockfile-only --prod
+        run: pnpm update -r "@sibipro/checkout-link" -- --lockfile-only --prod --no-frozen-lockfile
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

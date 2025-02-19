@@ -55,6 +55,7 @@ jobs:
           echo "package_name=$package_name" >> $GITHUB_OUTPUT
       - run: |
           npm publish --access public
+          NPM_TOKEN=$GITHUB_TOKEN npm publish --access public --registry https://npm.pkg.github.com
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Trigger monorepo PRs

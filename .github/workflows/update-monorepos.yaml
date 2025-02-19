@@ -11,58 +11,27 @@ on:
       version:
         description: "Version to update to"
         required: true
-      branch:
-        description: "Branch to update"
-        required: false
-        default: "main"
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  update-pnpm:
+  update-dependencies:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie"]
+        include:
+          - repo: "sibipro/biggie"
+            package_manager: "pnpm"
+          - repo: "sibipro/sibi"
+            package_manager: "yarn"
       fail-fast: true
     steps:
-      - name: Checkout ${{ matrix.monorepo }}
+      - name: Checkout ${{ matrix.repo }}
         uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.monorepo }}
-          token: ${{ secrets.PAT_TOKEN }}
-          ref: ${{ inputs.branch || 'main' }}
-          fetch-depth: 1
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Update Dependency with pnpm
-        run: pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
-
-      - name: Create Pull Request
-        uses: ./.github/actions/create-dependency-pr
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
-          version: ${{ github.event.client_payload.version || inputs.version }}
-          target-repo: ${{ matrix.monorepo }}
-
-  update-yarn:
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    strategy:
-      matrix:
-        monorepo: ["sibipro/sibi"]
-      fail-fast: true
-    steps:
-      - name: Checkout ${{ matrix.monorepo }}
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ matrix.monorepo }}
+          repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
           ref: main
           fetch-depth: 1
@@ -72,8 +41,13 @@ jobs:
         with:
           node-version: 22
 
-      - name: Update Dependency with yarn
-        run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
+      - name: Update Dependency
+        run: |
+          if [ "${{ matrix.package_manager }}" = "pnpm" ]; then
+            pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
+          else
+            yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
+          fi
         env:
           NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
@@ -83,4 +57,4 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
           version: ${{ github.event.client_payload.version || inputs.version }}
-          target-repo: ${{ matrix.monorepo }}
+          target-repo: ${{ matrix.repo }}

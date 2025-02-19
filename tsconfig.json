@@ -1,15 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "display": "Default",
   "compilerOptions": {
     "lib": [
       "ES2024",
       "DOM",
-      "DOM.Iterable",
-      "esnext"
+      "DOM.Iterable"
     ],
     "target": "ES2024",
-    "types": [],
     "esModuleInterop": true,
     "sourceMap": true,
     "outDir": "./dist/esm"

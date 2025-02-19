@@ -53,7 +53,7 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  release:
+  upload_release:
     needs: [test, build]
 
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -73,8 +73,22 @@ jobs:
           files: dist/**
           tag_name: v${{ steps.version.outputs.version }}
           body: "Release v${{ steps.version.outputs.version }}"
-          draft: false
+          draft: true
           generate_release_notes: true
-          token: ${{ secrets.PAT_TOKEN }} # this is needed bc otherwise the PR action silently fails, as Github checks if the release was made with the repo's token and does not trigger to prevent recursive workflow runs. awesome.
+
+  publish_release:
+    needs: [publish_npm, upload_release]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+      - uses: softprops/action-gh-release@v2.2.1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          draft: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # this is needed bc otherwise the PR action silently fails, as Github checks if the release was made with the repo's token and does not trigger to prevent recursive workflow runs. Silently. Awesome.

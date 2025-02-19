@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   update-monorepos:
+    if: ${{ !github.event.release.prerelease }} # Only run for full releases, not pre-releases
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: write

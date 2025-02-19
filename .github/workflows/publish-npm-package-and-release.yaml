@@ -46,9 +46,13 @@ jobs:
         with:
           name: dist
           path: dist/
-      - name: Get version
+      - name: Get version and package name
         id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: |
+          version=$(node -p "require('./package.json').version")
+          package_name=$(node -p "require('./package.json').name")
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "package_name=$package_name" >> $GITHUB_OUTPUT
       - run: |
           npm publish --access public
         env:
@@ -58,7 +62,7 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           event-type: npm-package-published
-          client-payload: '{"version": "v${{ steps.version.outputs.version }}"}'
+          client-payload: '{"version": "v${{ steps.version.outputs.version }}, package_name": "${{ steps.version.outputs.package_name }}"}'
 
   upload_release:
     needs: [test, build]
@@ -78,7 +82,7 @@ jobs:
       - uses: softprops/action-gh-release@v2.2.1
         with:
           files: dist/**
-          tag_name: v${{ steps.version.outputs.version }}-${{ github.run_id }}
+          tag_name: v${{ steps.version.outputs.version }}
           body: "Release v${{ steps.version.outputs.version }}. This is an automated update from: [${{ github.repository }}](${{github.repositoryUrl}})"
           draft: false
           generate_release_notes: true

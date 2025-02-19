@@ -2,7 +2,8 @@ name: Update Monorepos Dependency
 
 on:
   release:
-    types: [published]
+    types: [released]
+  workflow_dispatch: # Add manual trigger for testing
 
 permissions: write-all
 
@@ -36,13 +37,13 @@ jobs:
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "chore: bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
+          commit_message: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-checkout-link-${{ github.event.release.tag_name }}
+          branch: 🔗/${{ github.event.release.tag_name }}
           base: main
           title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: "Automatically updating @sibipro/checkout-link in `${{ matrix.monorepo }}` to version ${{ github.event.release.tag_name }}."

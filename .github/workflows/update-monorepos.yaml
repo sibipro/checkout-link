@@ -39,7 +39,7 @@ jobs:
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update @sibipro/checkout-link --lockfile-only --prod --no-store
+        run: pnpm update -r "@sibipro/checkout-link" -- --lockfile-only --prod
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

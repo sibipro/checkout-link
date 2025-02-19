@@ -13,7 +13,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie"]
+        monorepo: ["sibipro/biggie", "sibipro/sibi"]
       fail-fast: false
     steps:
       - name: Checkout ${{ matrix.monorepo }}

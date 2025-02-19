@@ -1,24 +1,30 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
   "compilerOptions": {
     "lib": [
       "ES2024",
       "DOM",
-      "DOM.Iterable"
+      "DOM.Iterable",
+      "esnext"
     ],
-    "target": "ES2024",
+    "target": "ES2015",
+    "types": [],
+    "composite": false,
     "esModuleInterop": true,
-    "sourceMap": true,
-    "outDir": "./dist/esm"
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "incremental": true,
+    "outDir": "./dist"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.js"
-  ],
   "exclude": [
-    "node_modules",
-    "dist",
-    "**/*.test.ts",
-    "vitest.*.config.ts"
+    "node_modules"
   ]
 }

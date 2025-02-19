@@ -13,8 +13,8 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie", "sibipro/sibi"]
-      fail-fast: false
+        monorepo: ["sibipro/biggie"]
+      fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4
@@ -39,8 +39,8 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie"]
-      fail-fast: false
+        monorepo: ["sibipro/sibi"]
+      fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie"]
+        monorepo: ["sibipro/biggie", "sibipro/sibi"]
     steps:
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4

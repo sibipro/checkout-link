@@ -34,7 +34,7 @@ jobs:
   publish_npm:
     needs: [test, build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
-    continue-on-error: true
+
     permissions:
       packages: write
     steps:
@@ -72,7 +72,7 @@ jobs:
         with:
           files: dist/**
           tag_name: v${{ steps.version.outputs.version }}
-          body: "Release v${{ steps.version.outputs.version }}"
+          body: "Release v${{ steps.version.outputs.version }}. This is an automated update from: [${{ github.repository }}](${{github.repositoryUrl}})"
           draft: true
           generate_release_notes: true
 

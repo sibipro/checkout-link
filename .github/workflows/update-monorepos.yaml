@@ -11,6 +11,10 @@ on:
       version:
         description: "Version to update to"
         required: true
+      branch:
+        description: "Branch to update"
+        required: false
+        default: "main"
 
 permissions:
   contents: write

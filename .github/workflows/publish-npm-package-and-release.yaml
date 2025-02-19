@@ -55,6 +55,7 @@ jobs:
 
   release:
     needs: [test, build]
+
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: write
@@ -74,5 +75,6 @@ jobs:
           body: "Release v${{ steps.version.outputs.version }}"
           draft: false
           generate_release_notes: true
+          token: ${{ secrets.PAT_TOKEN }} # this is needed bc otherwise the PR action silently fails, as Github checks if the release was made with the repo's token and does not trigger to prevent recursive workflow runs. awesome.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -37,8 +37,7 @@ jobs:
           sparse-checkout: |
             package.json
             pnpm-lock.yaml
-            packages/*/package.json
-            apps/*/package.json
+            packages/eslint-config-sibi
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4.1.0
@@ -58,4 +57,3 @@ jobs:
           add-paths: |
             pnpm-lock.yaml
             package.json
-            **/package.json

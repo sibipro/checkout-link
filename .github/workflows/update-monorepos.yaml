@@ -41,11 +41,16 @@ jobs:
         with:
           node-version: 22
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Update Dependency with pnpm
         run: pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
+
+      - name: Create Pull Request
+        uses: ./.github/actions/create-dependency-pr
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
+          version: ${{ github.event.client_payload.version || inputs.version }}
+          target-repo: ${{ matrix.monorepo }}
 
   update-yarn:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
@@ -67,21 +72,11 @@ jobs:
         with:
           node-version: 22
 
-      - name: Enable Corepack
-        run: corepack enable
-
       - name: Update Dependency with yarn
         run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
-  create-pr:
-    needs: [update-pnpm, update-yarn]
-    if: always() && (needs.update-pnpm.result == 'success' || needs.update-yarn.result == 'success')
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    strategy:
-      matrix:
-        monorepo: ["sibipro/biggie", "sibipro/sibi"]
-    steps:
+
       - name: Create Pull Request
         uses: ./.github/actions/create-dependency-pr
         with:

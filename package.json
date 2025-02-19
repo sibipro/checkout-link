@@ -1,6 +1,6 @@
 {
   "name": "@sibipro/checkout-link",
-  "version": "1.0.34",
+  "version": "1.1.1",
   "description": "",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -10,13 +10,16 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/esm/index.d.ts",
       "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "require": "./dist/cjs/index.js"
     }
   },
   "scripts": {
     "test": "vitest",
+    "test:build": "npm run build && npm run test && npm run test:esm && npm run test:cjs",
+    "test:esm": "vitest run --config vitest.esm.config.ts",
+    "test:cjs": "vitest run --config vitest.cjs.config.ts",
     "type-check": "tsc --noEmit",
     "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc --project tsconfig.json",

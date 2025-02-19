@@ -78,6 +78,7 @@ jobs:
           fetch-depth: 1
 
       - name: Create Pull Request
+        id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
           draft: true
@@ -94,3 +95,9 @@ jobs:
             yarn.lock
             package.json
             **/package.json
+
+      - name: Output Pull Request URL
+        if: steps.cpr.outputs.pull-request-number
+        run: |
+          echo "Pull Request URL: ${{ steps.cpr.outputs.pull-request-url }}"
+          echo "Pull Request Number: ${{ steps.cpr.outputs.pull-request-number }}"

@@ -54,7 +54,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   upload_release:
-    needs: [test, build]
+    needs: [build]
 
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
@@ -71,7 +71,7 @@ jobs:
       - uses: softprops/action-gh-release@v2.2.1
         with:
           files: dist/**
-          tag_name: v${{ steps.version.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}-${{ github.run_id }}
           body: "Release v${{ steps.version.outputs.version }}. This is an automated update from: [${{ github.repository }}](${{github.repositoryUrl}})"
           draft: true
           generate_release_notes: true

@@ -2,7 +2,6 @@ name: Update Monorepos Dependency
 
 on:
   release:
-    types: [created, published]
   workflow_dispatch: # Manual trigger
     inputs:
       tag_name:
@@ -16,7 +15,10 @@ permissions:
 
 jobs:
   update-monorepos:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    permissions:
+      contents: write
+      pull-requests: write
 
     strategy:
       matrix:

@@ -1,15 +1,6 @@
 name: Update Monorepos Dependency
 
 on:
-  workflow_run:
-    workflows: ["Publish and Release"]
-    types: [completed]
-  workflow_dispatch: # Manual trigger
-    inputs:
-      tag_name:
-        description: "Release tag to simulate (e.g. v1.2.3)"
-        required: true
-        type: string
   release:
 
 permissions:

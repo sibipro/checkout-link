@@ -1,0 +1,44 @@
+name: "Create Dependency Update PR"
+description: "Creates a PR for dependency updates"
+
+inputs:
+  token:
+    description: "GitHub token"
+    required: true
+  package-name:
+    description: "Package being updated"
+    required: true
+  version:
+    description: "New version"
+    required: true
+  target-repo:
+    description: "Target repository"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout ${{ inputs.target-repo }}
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.target-repo }}
+        token: ${{ inputs.token }}
+        ref: main
+        fetch-depth: 1
+
+    - uses: peter-evans/create-pull-request@v7
+      with:
+        draft: true
+        token: ${{ inputs.token }}
+        branch: 🏴‍☠️/${{ inputs.package-name }}/${{ inputs.version }}
+        base: main
+        title: "bump ${{ inputs.package-name }} to ${{ inputs.version }}"
+        body: |
+          Automatically updating ${{ inputs.package-name }} in `${{ inputs.target-repo }}` to version ${{ inputs.version }}.
+          The repo for this package is: (${{ github.repositoryUrl }}).
+        labels: "dependencies, automation"
+        add-paths: |
+          pnpm-lock.yaml
+          yarn.lock
+          package.json
+          **/package.json

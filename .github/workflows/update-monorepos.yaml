@@ -69,14 +69,6 @@ jobs:
       matrix:
         monorepo: ["sibipro/biggie", "sibipro/sibi"]
     steps:
-      - name: Checkout ${{ matrix.monorepo }}
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ matrix.monorepo }}
-          token: ${{ secrets.PAT_TOKEN }}
-          ref: main
-          fetch-depth: 1
-
       - name: Create Pull Request
         uses: ./.github/actions/create-dependency-pr
         with:

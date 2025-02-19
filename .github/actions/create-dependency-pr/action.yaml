@@ -15,6 +15,14 @@ inputs:
     description: "Target repository"
     required: true
 
+outputs:
+  pr-url:
+    description: "URL of the created pull request"
+    value: ${{ steps.create-pr.outputs.pull-request-url }}
+  pr-created:
+    description: "Whether a PR was created"
+    value: ${{ steps.create-pr.outputs.pull-request-created }}
+
 runs:
   using: "composite"
   steps:
@@ -26,7 +34,8 @@ runs:
         ref: main
         fetch-depth: 1
 
-    - uses: peter-evans/create-pull-request@v7
+    - id: create-pr
+      uses: peter-evans/create-pull-request@v7
       with:
         draft: true
         token: ${{ inputs.token }}
@@ -42,3 +51,12 @@ runs:
           yarn.lock
           package.json
           **/package.json
+
+    - name: Check PR creation
+      shell: bash
+      run: |
+        if [ "${{ steps.create-pr.outputs.pull-request-created }}" != "true" ]; then
+          echo "No PR was created. This could mean there were no changes to commit."
+          exit 1
+        fi
+        echo "PR created successfully: ${{ steps.create-pr.outputs.pull-request-url }}"

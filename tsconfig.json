@@ -3,12 +3,12 @@
   "display": "Default",
   "compilerOptions": {
     "lib": [
-      "ES2023",
+      "ES2024",
       "DOM",
       "DOM.Iterable",
       "esnext"
     ],
-    "target": "ES2024",
+    "target": "ES2015",
     "types": [],
     "composite": false,
     "esModuleInterop": true,

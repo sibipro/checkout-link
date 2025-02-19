@@ -3,7 +3,12 @@ name: Update Monorepos Dependency
 on:
   release:
     types: [published]
-  workflow_dispatch: # Add manual trigger for testing
+  workflow_dispatch: # Manual trigger
+    inputs:
+      tag_name:
+        description: "Release tag to simulate (e.g. v1.2.3)"
+        required: true
+        type: string
 
 permissions: write-all
 
@@ -27,7 +32,7 @@ jobs:
           ref: main
 
       - name: Create Branch
-        run: git switch -c 🔗/${{ github.event.release.tag_name }}
+        run: git switch -c 🔗/${{ github.event.release.tag_name || github.event.inputs.tag_name }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -40,15 +45,15 @@ jobs:
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
-          branch: 🔗/${{ github.event.release.tag_name }} # Specify the branch to commit to
+          commit_message: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
+          branch: 🔗/${{ github.event.release.tag_name || github.event.inputs.tag_name }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🔗/${{ github.event.release.tag_name }}
+          branch: 🔗/${{ github.event.release.tag_name || github.event.inputs.tag_name }}
           base: main
-          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
-          body: "Automatically updating @sibipro/checkout-link in `${{ matrix.monorepo }}` to version ${{ github.event.release.tag_name }}."
+          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name || github.event.inputs.tag_name }}"
+          body: "Automatically updating @sibipro/checkout-link in `${{ matrix.monorepo }}` to version ${{ github.event.release.tag_name || github.event.inputs.tag_name }}."
           labels: "dependencies, automation"

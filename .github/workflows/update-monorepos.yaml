@@ -3,12 +3,6 @@ name: Update Monorepos Dependency
 on:
   release:
     types: [published]
-  workflow_dispatch: # Manual trigger
-    inputs:
-      tag_name:
-        description: "Release tag to simulate (e.g. v1.2.3)"
-        required: true
-        type: string
 
 permissions:
   contents: write
@@ -16,7 +10,6 @@ permissions:
 
 jobs:
   update-monorepos:
-    if: ${{ !github.event.release.prerelease }} # Only run for full releases, not pre-releases
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
       contents: write
@@ -27,6 +20,14 @@ jobs:
         monorepo: ["sibipro/biggie"] # List of monorepos to update
 
     steps:
+      - name: Check if latest release
+        run: |
+          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
+          if [ "$latest_tag" != "${{ github.event.release.tag_name }}" ]; then
+            echo "This is not the latest release. Skipping. Latest tag: $latest_tag, Event tag: ${{ github.event.release.tag_name }}"
+            exit 1
+          fi
+
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4
         with:

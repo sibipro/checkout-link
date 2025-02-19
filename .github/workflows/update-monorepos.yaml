@@ -1,8 +1,8 @@
 name: Update Monorepos Dependency
 
 on:
-  release:
-    types: [published]
+  repository_dispatch:
+    types: [npm-package-published]
 
 permissions:
   contents: write
@@ -17,17 +17,9 @@ jobs:
 
     strategy:
       matrix:
-        monorepo: ["sibipro/biggie"] # List of monorepos to update
+        monorepo: ["sibipro/biggie"]
 
     steps:
-      - name: Check if latest release
-        run: |
-          latest_tag=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r .tag_name)
-          if [ "$latest_tag" != "${{ github.event.release.tag_name }}" ]; then
-            echo "This is not the latest release. Skipping. Latest tag: $latest_tag, Event tag: ${{ github.event.release.tag_name }}"
-            exit 1
-          fi
-
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4
         with:
@@ -40,16 +32,16 @@ jobs:
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update -r "@sibipro/checkout-link" -- --lockfile-only --prod
+        run: pnpm update -r "@sibipro/checkout-link@${{ github.event.client_payload.version }}" -- --lockfile-only --prod
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🔗/${{ github.event.release.tag_name }}
+          branch: 🔗/${{ github.event.client_payload.version }}
           base: main
-          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
-          body: "Automatically updating @sibipro/checkout-link in `${{ matrix.monorepo }}` to version ${{ github.event.release.tag_name }}."
+          title: "bump @sibipro/checkout-link to ${{ github.event.client_payload.version }}"
+          body: "Automatically updating @sibipro/checkout-link in `${{ matrix.monorepo }}` to version ${{ github.event.client_payload.version }}."
           labels: "dependencies, automation"
           add-paths: |
             pnpm-lock.yaml

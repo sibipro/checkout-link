@@ -46,15 +46,22 @@ jobs:
         with:
           name: dist
           path: dist/
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - run: |
-          version=$(node -p "require('./package.json').version")
-          package=$(node -p "require('./package.json').name")
           npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Trigger monorepo PRs
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          event-type: npm-package-published
+          client-payload: '{"version": "v${{ steps.version.outputs.version }}"}'
 
   upload_release:
-    needs: [build]
+    needs: [test, build]
 
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
@@ -73,22 +80,7 @@ jobs:
           files: dist/**
           tag_name: v${{ steps.version.outputs.version }}-${{ github.run_id }}
           body: "Release v${{ steps.version.outputs.version }}. This is an automated update from: [${{ github.repository }}](${{github.repositoryUrl}})"
-          draft: true
-          generate_release_notes: true
-
-  publish_release:
-    needs: [publish_npm, upload_release]
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Get version
-        id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - uses: softprops/action-gh-release@v2.2.1
-        with:
-          tag_name: v${{ steps.version.outputs.version }}
           draft: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }} # this is needed bc otherwise the PR action silently fails, as Github checks if the release was made with the repo's token and does not trigger to prevent recursive workflow runs. Silently. Awesome.

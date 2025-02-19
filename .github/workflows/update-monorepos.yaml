@@ -10,10 +10,10 @@ permissions:
 
 jobs:
   update-pnpm:
+    needs: discover
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
-      matrix:
-        monorepo: ["sibipro/biggie"]
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
       fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}
@@ -36,10 +36,10 @@ jobs:
         run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" --prod
 
   update-yarn:
+    needs: discover
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
-      matrix:
-        monorepo: ["sibipro/sibi"]
+      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
       fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}

@@ -10,14 +10,13 @@ on:
         required: true
         type: string
 
-permissions: write-all
+permissions:
+  contents: read # To read releases
+  pull-requests: write # To create PRs
 
 jobs:
   update-monorepos:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    permissions:
-      contents: write
-      pull-requests: write
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:

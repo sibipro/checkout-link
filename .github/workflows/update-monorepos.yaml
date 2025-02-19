@@ -3,6 +3,7 @@ name: Update Monorepos Dependency
 on:
   repository_dispatch:
     types: [npm-package-published]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,10 +11,10 @@ permissions:
 
 jobs:
   update-pnpm:
-    needs: discover
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
-      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+      matrix:
+        monorepo: ["sibipro/biggie"]
       fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}
@@ -36,10 +37,10 @@ jobs:
         run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" --prod
 
   update-yarn:
-    needs: discover
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
-      matrix: ${{ fromJson(needs.discover.outputs.matrix) }}
+      matrix:
+        monorepo: ["sibipro/biggie"]
       fail-fast: true
     steps:
       - name: Checkout ${{ matrix.monorepo }}

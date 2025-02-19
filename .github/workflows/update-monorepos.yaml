@@ -9,16 +9,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-monorepos:
+  update-pnpm:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    permissions:
-      contents: write
-      pull-requests: write
-
     strategy:
       matrix:
         monorepo: ["sibipro/biggie"]
-
+      fail-fast: false
     steps:
       - name: Checkout ${{ matrix.monorepo }}
         uses: actions/checkout@v4
@@ -28,11 +24,58 @@ jobs:
           ref: main
           fetch-depth: 1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4.1.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-      - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" -- --prod
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Update Dependency with pnpm
+        run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" --prod
+
+  update-yarn:
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
+    strategy:
+      matrix:
+        monorepo: ["sibipro/biggie"]
+      fail-fast: false
+    steps:
+      - name: Checkout ${{ matrix.monorepo }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.monorepo }}
+          token: ${{ secrets.PAT_TOKEN }}
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Update Dependency with yarn
+        run: yarn upgrade "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}"
+
+  create-pr:
+    needs: [update-pnpm, update-yarn]
+    if: always() && (needs.update-pnpm.result == 'success' || needs.update-yarn.result == 'success')
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
+    strategy:
+      matrix:
+        monorepo: ["sibipro/biggie"]
+    steps:
+      - name: Checkout ${{ matrix.monorepo }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.monorepo }}
+          token: ${{ secrets.PAT_TOKEN }}
+          ref: main
+          fetch-depth: 1
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -47,5 +90,6 @@ jobs:
           labels: "dependencies, automation"
           add-paths: |
             pnpm-lock.yaml
+            yarn.lock
             package.json
             **/package.json

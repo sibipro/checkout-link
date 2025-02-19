@@ -78,19 +78,9 @@ jobs:
           fetch-depth: 1
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
+        uses: ./.github/actions/create-dependency-pr
         with:
-          draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/${{ github.event.client_payload.package_name }}/${{ github.event.client_payload.version }}
-          base: main
-          title: "bump ${{ github.event.client_payload.package_name }} to ${{ github.event.client_payload.version }}"
-          body: |
-            Automatically updating ${{ github.event.client_payload.package_name }} in `${{ matrix.monorepo }}` to version ${{ github.event.client_payload.version }}.
-            The repo for this package is: (${{github.repositoryUrl}}).
-          labels: "dependencies, automation"
-          add-paths: |
-            pnpm-lock.yaml
-            yarn.lock
-            package.json
-            **/package.json
+          package-name: ${{ github.event.client_payload.package_name }}
+          version: ${{ github.event.client_payload.version }}
+          target-repo: ${{ matrix.monorepo }}

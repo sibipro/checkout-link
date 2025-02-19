@@ -62,7 +62,7 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           event-type: npm-package-published
-          client-payload: '{"version": "v${{ steps.version.outputs.version }}, "package_name": "${{ steps.version.outputs.package_name }}"}'
+          client-payload: '{"version": "v${{ steps.version.outputs.version }}", "package_name": "${{ steps.version.outputs.package_name }}"}'
 
   upload_release:
     needs: [test, build]

@@ -3,6 +3,12 @@ name: Update Monorepos Dependency
 on:
   release:
     types: [published]
+  workflow_dispatch: # Manual trigger
+    inputs:
+      tag_name:
+        description: "Release tag to simulate (e.g. v1.2.3)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -10,7 +16,6 @@ permissions:
 
 jobs:
   update-monorepos:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       contents: write
@@ -33,7 +38,7 @@ jobs:
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update @sibipro/checkout-link@${{ github.event.release.tag_name }} --lockfile-only --prod --no-store
+        run: pnpm update @sibipro/checkout-link --lockfile-only --prod --no-store
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

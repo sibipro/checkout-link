@@ -2,6 +2,7 @@ name: Update Monorepos Dependency
 
 on:
   release:
+    types: [created, published]
   workflow_dispatch: # Manual trigger
     inputs:
       tag_name:
@@ -10,8 +11,8 @@ on:
         type: string
 
 permissions:
-  contents: read # To read releases
-  pull-requests: write # To create PRs
+  contents: write
+  pull-requests: write
 
 jobs:
   update-monorepos:
@@ -37,7 +38,7 @@ jobs:
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm @sibipro/checkout-link update --lockfile-only --prod --no-store
+        run: pnpm update @sibipro/checkout-link --lockfile-only --prod --no-store
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

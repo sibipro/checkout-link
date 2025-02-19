@@ -96,6 +96,12 @@ jobs:
             package.json
             **/package.json
 
+      - name: Check if PR was created
+        if: ${{ !steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "No pull request was created. This likely means no changes were detected."
+          exit 1
+
       - name: Output Pull Request URL
         if: steps.cpr.outputs.pull-request-number
         run: |

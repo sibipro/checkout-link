@@ -72,7 +72,8 @@ jobs:
 
       - name: Update Dependency with yarn
         run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
-
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
   create-pr:
     needs: [update-pnpm, update-yarn]
     if: always() && (needs.update-pnpm.result == 'success' || needs.update-yarn.result == 'success')

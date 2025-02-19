@@ -4,6 +4,13 @@ on:
   repository_dispatch:
     types: [npm-package-published]
   workflow_dispatch:
+    inputs:
+      package_name:
+        description: "Package name to update"
+        required: true
+      version:
+        description: "Version to update to"
+        required: true
 
 permissions:
   contents: write
@@ -22,7 +29,7 @@ jobs:
         with:
           repository: ${{ matrix.monorepo }}
           token: ${{ secrets.PAT_TOKEN }}
-          ref: main
+          ref: ${{ inputs.branch || 'main' }}
           fetch-depth: 1
 
       - name: Setup Node.js
@@ -34,7 +41,7 @@ jobs:
         run: corepack enable
 
       - name: Update Dependency with pnpm
-        run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" --prod
+        run: pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
 
   update-yarn:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
@@ -60,7 +67,7 @@ jobs:
         run: corepack enable
 
       - name: Update Dependency with yarn
-        run: yarn upgrade "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}"
+        run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
 
   create-pr:
     needs: [update-pnpm, update-yarn]
@@ -74,6 +81,6 @@ jobs:
         uses: ./.github/actions/create-dependency-pr
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          package-name: ${{ github.event.client_payload.package_name }}
-          version: ${{ github.event.client_payload.version }}
+          package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
+          version: ${{ github.event.client_payload.version || inputs.version }}
           target-repo: ${{ matrix.monorepo }}

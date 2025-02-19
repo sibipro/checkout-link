@@ -54,29 +54,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  publish_github_registry:
-    needs: [test, build]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
-    continue-on-error: true
-    permissions:
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://npm.pkg.github.com
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
-      - run: |
-          version=$(node -p "require('./package.json').version")
-          package=$(node -p "require('./package.json').name")
-          npm publish --access public --registry https://npm.pkg.github.com
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   release:
     needs: [test, build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -96,5 +73,7 @@ jobs:
           files: dist/**
           tag_name: v${{ steps.version.outputs.version }}
           body: "Release v${{ steps.version.outputs.version }}"
+          draft: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

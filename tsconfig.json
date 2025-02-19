@@ -21,10 +21,17 @@
     "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true,
-    "incremental": true,
-    "outDir": "./dist"
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist/esm"
   },
+  "include": [
+    "**/*.ts",
+    "**/*.js"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

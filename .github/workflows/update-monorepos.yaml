@@ -32,7 +32,7 @@ jobs:
         uses: pnpm/action-setup@v4.1.0
 
       - name: Update Dependency in ${{ matrix.monorepo }}
-        run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" -- --lockfile-only --prod
+        run: pnpm update -r "${{ github.event.client_payload.package_name }}@${{ github.event.client_payload.version }}" -- --prod
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

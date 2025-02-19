@@ -1,6 +1,14 @@
 name: Update Monorepos Dependency
 
 on:
+  workflow_dispatch:
+    inputs:
+      package_name:
+        description: "Package name to update"
+        required: true
+      version:
+        description: "Version to update to"
+        required: true
   repository_dispatch:
     types: [npm-package-published]
 

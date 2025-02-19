@@ -2,7 +2,7 @@ name: Update Monorepos Dependency
 
 on:
   release:
-    types: [published]
+    types: [created, published]
   workflow_dispatch: # Manual trigger
     inputs:
       tag_name:

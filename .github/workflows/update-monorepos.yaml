@@ -36,12 +36,30 @@ jobs:
         run: pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
 
       - name: Create Pull Request
-        uses: ./.github/actions/create-dependency-pr
+        uses: peter-evans/create-pull-request@v7
         with:
+          draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
-          version: ${{ github.event.client_payload.version || inputs.version }}
-          target-repo: ${{ matrix.repo }}
+          branch: 🏴‍☠️/${{ github.event.client_payload.package_name || inputs.package_name }}/${{ github.event.client_payload.version || inputs.version }}
+          title: "bump ${{ github.event.client_payload.package_name || inputs.package_name }} to ${{ github.event.client_payload.version || inputs.version }}"
+          body: |
+            Automatically updating ${{ github.event.client_payload.package_name || inputs.package_name }} in `${{ matrix.repo }}` to version ${{ github.event.client_payload.version || inputs.version }}.
+            The repo for this package is: (${{ github.repositoryUrl }}).
+          labels: "dependencies, automation"
+          add-paths: |
+            pnpm-lock.yaml
+            yarn.lock
+            package.json
+            **/package.json
+
+      - name: Check PR creation
+        shell: bash
+        run: |
+          if [ "${{ steps.create-pr.outputs.pull-request-created }}" != "true" ]; then
+            echo "No PR was created. This could mean there were no changes to commit."
+            exit 1
+          fi
+          echo "PR created successfully: ${{ steps.create-pr.outputs.pull-request-url }}"
 
   update-yarn:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
@@ -64,9 +82,27 @@ jobs:
           NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Create Pull Request
-        uses: ./.github/actions/create-dependency-pr
+        uses: peter-evans/create-pull-request@v7
         with:
+          draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          package-name: ${{ github.event.client_payload.package_name || inputs.package_name }}
-          version: ${{ github.event.client_payload.version || inputs.version }}
-          target-repo: ${{ matrix.repo }}
+          branch: 🏴‍☠️/${{ github.event.client_payload.package_name || inputs.package_name }}/${{ github.event.client_payload.version || inputs.version }}
+          title: "bump ${{ github.event.client_payload.package_name || inputs.package_name }} to ${{ github.event.client_payload.version || inputs.version }}"
+          body: |
+            Automatically updating ${{ github.event.client_payload.package_name || inputs.package_name }} in `${{ matrix.repo }}` to version ${{ github.event.client_payload.version || inputs.version }}.
+            The repo for this package is: (${{ github.repositoryUrl }}).
+          labels: "dependencies, automation"
+          add-paths: |
+            pnpm-lock.yaml
+            yarn.lock
+            package.json
+            **/package.json
+
+      - name: Check PR creation
+        shell: bash
+        run: |
+          if [ "${{ steps.create-pr.outputs.pull-request-created }}" != "true" ]; then
+            echo "No PR was created. This could mean there were no changes to commit."
+            exit 1
+          fi
+          echo "PR created successfully: ${{ steps.create-pr.outputs.pull-request-url }}"

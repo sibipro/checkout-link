@@ -114,8 +114,8 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           draft: false
-          branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
-          title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
+          branch: "🦞/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
+          title: "🦞 ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
           body: |
             Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
             The repo for this package is: ${{ github.repositoryUrl }}.

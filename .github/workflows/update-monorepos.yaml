@@ -22,7 +22,8 @@ jobs:
       repos: ${{ steps.find.outputs.repos }}
     steps:
       - name: Set up GitHub CLI
-        uses: actions/setup-node@v4
+        uses: cli/gh-cli-action@v1
+
       - name: Discover dependent repos
         id: find
         run: |
@@ -37,9 +38,9 @@ jobs:
           #    Then store that array as 'repos' in the job output
           REPOS_JSON=$(echo "$REPOS" | jq -Rs 'split("\n") | map(select(length>0))')
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
-          echo "I found $REPOS_JSON"
-    env:
-      GH_TOKEN: ${{ github.token }}
+          echo "Found repos: $REPOS_JSON"
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   update-deps:
     needs: discover

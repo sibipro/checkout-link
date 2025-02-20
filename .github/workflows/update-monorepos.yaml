@@ -52,6 +52,7 @@ jobs:
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
+          yarn
           yarn update "${PACKAGE}@${VERSION}"
           git diff
 

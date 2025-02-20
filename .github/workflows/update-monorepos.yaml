@@ -86,7 +86,6 @@ jobs:
         run: |
           echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
           yarn config set npmScopes.sibipro.npmAuthToken "${{ secrets.PAT_TOKEN }}"
-          yarn config set npmScopes.sibipro.registry "https://npm.pkg.github.com"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 

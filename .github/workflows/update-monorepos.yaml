@@ -85,9 +85,12 @@ jobs:
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
           echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
-          yarn config set npmScopes.sibipro.npmAuthToken "${{ secrets.PAT_TOKEN }}"
+          yarn config set npmScopes.sibipro.npmAuthToken "$NPM_TOKEN"
+          yarn config set npmScopes.sibipro.npmAlwaysAuth true
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
+        env:
+          NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm

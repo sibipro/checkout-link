@@ -39,7 +39,6 @@ jobs:
       - name: Discover dependent repos
         id: find
         run: |
-          ls -la
           REPOS_JSON=$(gh api search/code \
            --method GET \
            -f q='org:${{ github.repository_owner }} "${{ steps.vars.outputs.package }}" in:file filename:package.json' \
@@ -83,6 +82,9 @@ jobs:
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
+          echo "location: $(pwd)"
+          echo "finding all .npmrc files"
+          find . -name ".npmrc"
           echo "temporary npmrc is: $(cat tmp/.npmrc)"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"

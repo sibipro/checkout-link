@@ -9,11 +9,36 @@ permissions:
   pull-requests: write
 
 jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.find.outputs.repos }}
+    steps:
+      - name: Set up GitHub CLI
+        uses: actions/setup-node@v4
+      - name: Discover dependent repos
+        id: find
+        run: |
+          # 1. Search code in the 'sibipro' org for references to '@sibipro/checkout-link'
+          #    ignoring the sibipro/checkout-link repo itself
+          REPOS=$(gh api search/code \
+            --method GET \
+            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json -repo:sibipro/checkout-link' \
+            --jq '.items[].repository.full_name'
+          )
+
+          # 2. Convert multiline output to a JSON array
+          #    Then store that array as 'repos' in the job output
+          REPOS_JSON=$(echo "$REPOS" | jq -Rs 'split("\n") | map(select(length>0))')
+          echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
+
   update-deps:
+    needs: discover
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        repo: ["sibipro/biggie", "sibipro/sibi"]
+        repo: ${{ fromJson(needs.discover.outputs.repos) }}
+
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
@@ -39,7 +64,6 @@ jobs:
           PACKAGE="@sibipro/checkout-link"
           echo "Detected pnpm-lock.yaml; updating $PACKAGE to $VERSION via pnpm."
           pnpm update -r "${PACKAGE}@${VERSION}" --prod
-          git diff
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
@@ -51,7 +75,6 @@ jobs:
           echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
           yarn
           yarn update "${PACKAGE}@${VERSION}"
-          git diff
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm
@@ -63,7 +86,6 @@ jobs:
           echo "Detected package-lock.json; updating $PACKAGE to $VERSION via npm."
           npm ci
           npm update "${PACKAGE}@${VERSION}"
-          git diff
 
       # Fallback: no recognized lockfiles => default to npm
       - name: Fallback (no lockfile)
@@ -74,7 +96,6 @@ jobs:
           PACKAGE="@sibipro/checkout-link"
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
           npm update "${PACKAGE}@${VERSION}"
-          git diff
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -85,7 +106,7 @@ jobs:
           title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
             Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
-            The repo for this package is: (${{ github.repositoryUrl }}).
+            The repo for this package is: ${{ github.repositoryUrl }}.
 
             Release Notes: ${{ github.event.release.html_url || '' }}
           labels: "dependencies, automation"

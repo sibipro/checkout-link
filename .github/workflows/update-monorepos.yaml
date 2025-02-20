@@ -31,10 +31,7 @@ jobs:
         run: |
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
-          echo "location: $(pwd)"
-          echo "finding all .npmrc files"
-          find . -name ".npmrc"
-          echo "temporary npmrc is: $(cat tmp/.npmrc)"
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" >> .npmrc
 
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4
@@ -59,11 +56,12 @@ jobs:
         repo: ${{ fromJson(needs.discover.outputs.repos) }}
 
     steps:
-      - name: Check out the repo
+      - name: Checkout this repo to tmp
         uses: actions/checkout@v4
         with:
-          repository: ${{ matrix.repo }}
+          repository: ${{ github.repository }}
           token: ${{ secrets.PAT_TOKEN }}
+          path: tmp
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -84,11 +82,6 @@ jobs:
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}
-          token: ${{ secrets.PAT_TOKEN }}
-          path: tmp
         run: |
           echo "location: $(pwd)"
           echo "finding all .npmrc files"

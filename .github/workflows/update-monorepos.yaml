@@ -85,8 +85,9 @@ jobs:
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
           echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
-          yarn
-          yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
+          yarn remove "${{ needs.discover.outputs.package }}" # just for a sec
+          yarn install
+          yarn add "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm

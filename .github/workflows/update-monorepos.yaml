@@ -62,57 +62,54 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Set version variable
+        id: vars
+        run: |
+          VERSION="${{ github.event.release.tag_name || inputs.package }}"
+          VERSION="${VERSION#v}"  # remove leading 'v' if present
+          PACKAGE="${{ github.event.repository.name || inputs.package }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "package=@sibipro/$PACKAGE" >> "$GITHUB_OUTPUT"
+
       # PNPM update step (runs only if a pnpm-lock.yaml is found)
       - name: Update Dependency with pnpm
         if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name || inputs.package }}"
-          VERSION="${VERSION#v}"  # remove leading 'v' if present
-          PACKAGE="@sibipro/checkout-link"
-          echo "Detected pnpm-lock.yaml; updating $PACKAGE to $VERSION via pnpm."
-          pnpm update -r "${PACKAGE}@${VERSION}" --prod
+          echo "Detected pnpm-lock.yaml; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via pnpm."
+          pnpm update -r "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name || inputs.package }}"
-          VERSION="${VERSION#v}"
-          PACKAGE="@sibipro/checkout-link"
-          echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
+          echo "Detected yarn.lock; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via yarn."
           yarn
-          yarn update "${PACKAGE}@${VERSION}"
+          yarn update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name || inputs.package }}"
-          VERSION="${VERSION#v}"
-          PACKAGE="@sibipro/checkout-link"
-          echo "Detected package-lock.json; updating $PACKAGE to $VERSION via npm."
+          echo "Detected package-lock.json; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via npm."
           npm ci
-          npm update "${PACKAGE}@${VERSION}"
+          npm update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
 
       # Fallback: no recognized lockfiles => default to npm
       - name: Fallback (no lockfile)
         if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name || inputs.package }}"
-          VERSION="${VERSION#v}"
-          PACKAGE="@sibipro/checkout-link"
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
-          npm update "${PACKAGE}@${VERSION}"
+          npm update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
           draft: false
-          branch: "bump/@sibipro/checkout-link/${{ github.event.release.tag_name || inputs.package }}"
-          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name || inputs.package }}"
+          branch: "bump/${{ steps.vars.outputs.package }}/${{ steps.vars.outputs.version }}"
+          title: "bump ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }}"
           body: |
-            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name || inputs.package }}.
+            Automatically updating ${{ steps.vars.outputs.package }} in `${{ matrix.repo }}` to version ${{ steps.vars.outputs.version }}.
             The repo for this package is: ${{ github.repositoryUrl }}.
 
             Release Notes: ${{ github.event.release.html_url || '' }}

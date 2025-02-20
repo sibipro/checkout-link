@@ -75,6 +75,12 @@ jobs:
           repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
 
+      - name: What does the filesystem look like now?
+        run: |
+          echo "location: $(pwd)"
+          echo "finding all .npmrc files"
+          find . -name ".npmrc"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
 

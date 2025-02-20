@@ -22,7 +22,7 @@ jobs:
       repos: ${{ steps.find.outputs.repos }}
     steps:
       - name: Set up GitHub CLI
-        uses: cli/gh-cli-action@v1
+        uses: actions/setup-node@v4
 
       - name: Discover dependent repos
         id: find

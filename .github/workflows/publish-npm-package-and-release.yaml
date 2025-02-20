@@ -35,8 +35,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package-files
-      - name: List downloaded files
-        run: ls -R .
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
@@ -66,11 +64,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: package-files
+      - name: Read package.json
+        id: read_package
+        run: |
+          echo "version=$(jq -r '.version' package.json) name=$(jq -r '.name' package.json)" >> $GITHUB_OUTPUT
       - uses: ncipollo/release-action@v1
         with:
           makeLatest: true
           token: ${{ secrets.PAT_TOKEN }}
-          tag: v${{ github.event.package.version }}
+          tag: ${{ steps.read_package.outputs.version }}
 
   emit_publish_event:
     needs: [publish_npm_package, publish_github_package]
@@ -81,4 +83,4 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           event-type: npm-package-published
-          client-payload: '{"package_name": "${{ github.event.package.name }}", "version": "${{ github.event.package.version }}"}'
+          client-payload: '{"package_name": "${{ steps.read_package.outputs.name }}", "version": "${{ steps.read_package.outputs.version }}"}'

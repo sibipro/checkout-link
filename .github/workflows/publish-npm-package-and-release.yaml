@@ -1,7 +1,6 @@
 name: Publish and Release
 
 on:
-  workflow_dispatch:
   push:
     branches: [main]
     paths: ["package.json", ".github/workflows/**"]
@@ -12,8 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - run: npm ci
       - run: npm run test:build
 
@@ -22,8 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - run: npm ci
       - run: npm run build --declaration
       - uses: actions/upload-artifact@v4
@@ -31,7 +26,7 @@ jobs:
           name: dist
           path: dist/
 
-  publish_npm:
+  publish_npm_package:
     needs: [test, build]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
@@ -78,3 +73,14 @@ jobs:
           makeLatest: true
           generateReleaseNotes: true
           token: ${{ secrets.PAT_TOKEN }}
+
+  emit_publish_event:
+    needs: [publish_npm_package, publish_github_package, github_release]
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          event-type: npm-package-published
+          client-payload: '{"package_name": "${{ github.event.package.name }}", "version": "${{ github.event.package.version }}"}'

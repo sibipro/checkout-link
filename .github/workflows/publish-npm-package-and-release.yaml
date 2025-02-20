@@ -31,9 +31,6 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
@@ -47,9 +44,6 @@ jobs:
       packages: write
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
@@ -64,9 +58,6 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist/
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/**"
@@ -75,7 +66,7 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
 
   emit_publish_event:
-    needs: [publish_npm_package, publish_github_package, github_release]
+    needs: [publish_npm_package, publish_github_package]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - name: Repository Dispatch

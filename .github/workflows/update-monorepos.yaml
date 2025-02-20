@@ -66,8 +66,6 @@ jobs:
         run: |
           mkdir -p tmp
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" > tmp/.npmrc
-          echo "location: $(pwd)"
-          echo "it looks like this:" $(ls -la)
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -82,17 +80,12 @@ jobs:
       - name: Update Dependency with pnpm
         if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
-          echo "Detected pnpm-lock.yaml; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via pnpm."
           pnpm update -r "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
-          echo "location: $(pwd)"
-          echo "finding all .npmrc files"
-          find . -name ".npmrc"
-          echo "temporary npmrc is: $(cat ./tmp/.npmrc | wc -l) lines"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:
@@ -103,7 +96,6 @@ jobs:
       - name: Update Dependency with npm
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
-          echo "Detected package-lock.json; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via npm."
           npm ci
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
@@ -117,17 +109,17 @@ jobs:
       - name: Remove temporary files
         run: rm -rf tmp
 
-      # - name: Create Pull Request
-      #   uses: peter-evans/create-pull-request@v7
-      #   with:
-      #     token: ${{ secrets.PAT_TOKEN }}
-      #     draft: false
-      #     branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
-      #     title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
-      #     body: |
-      #       Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
-      #       The repo for this package is: ${{ github.repositoryUrl }}.
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          draft: false
+          branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
+          title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
+          body: |
+            Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
+            The repo for this package is: ${{ github.repositoryUrl }}.
 
-      #       Release Notes: ${{ github.event.release.html_url || '' }}
-      #     labels: "dependencies, automation"
-      #     add-paths: .
+            Release Notes: ${{ github.event.release.html_url || '' }}
+          labels: "dependencies, automation"
+          add-paths: .

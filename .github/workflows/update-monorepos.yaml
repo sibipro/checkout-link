@@ -35,7 +35,6 @@ jobs:
 
           REPOS_JSON=$(echo "$REPOS" | jq -Rs 'split("\n") | map(select(length>0))')
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
-          echo "Found repos: $REPOS_JSON"
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
 

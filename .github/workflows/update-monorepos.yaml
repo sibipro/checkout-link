@@ -27,7 +27,7 @@ jobs:
       - name: Discover dependent repos
         id: find
         run: |
-          gh auth login --with-token <<< "${{ secrets.PAT_TOKEN }}"
+
           REPOS=$(gh api search/code \
            --method GET \
            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
@@ -37,7 +37,7 @@ jobs:
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
           echo "Found repos: $REPOS_JSON"
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
   update-deps:
     needs: discover

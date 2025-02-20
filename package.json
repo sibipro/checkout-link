@@ -7,13 +7,20 @@
   "types": "./dist/esm/index.d.ts",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "dist/**/*.d.ts"
   ],
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
     }
   },
   "scripts": {

@@ -5,24 +5,15 @@
     "lib": [
       "ES2024",
       "DOM",
-      "DOM.Iterable",
-      "esnext"
     ],
     "target": "ES2015",
-    "types": [],
-    "composite": false,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "inlineSources": false,
     "isolatedModules": true,
     "moduleResolution": "node",
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "preserveWatchOutput": true,
     "skipLibCheck": true,
     "strict": true,
     "incremental": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
   },
   "exclude": [
     "node_modules"

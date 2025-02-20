@@ -33,7 +33,7 @@ jobs:
            --jq '.items[].repository.full_name' | sort -u | grep -v sibipro/checkout-link)
 
           REPOS_JSON=$(echo "$REPOS" | jq -Rc 'split("\n")|map(select(length>0))')
-          echo "Debug - Found repos: $REPOS_JSON"
+          echo "Debug - Found repos: $REPOS_JSON from $REPOS"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}

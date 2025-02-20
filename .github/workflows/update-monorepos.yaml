@@ -27,6 +27,9 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           scope: "@sibipro"
 
+      - name: Install latest corepack
+        run: npm install --global corepack@latest
+
       - name: Enable Corepack
         run: corepack enable
 

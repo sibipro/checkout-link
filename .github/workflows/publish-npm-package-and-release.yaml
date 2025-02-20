@@ -35,11 +35,11 @@ jobs:
     needs: [test, build]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
+      - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
           access: public
@@ -51,11 +51,11 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
+      - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
           access: public
@@ -68,21 +68,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
-      - name: Get version
-        id: version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
+      - uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/**"
-          tag: v${{ steps.version.outputs.version }}
-          name: v${{ steps.version.outputs.version }}
-          body: "Release v${{ steps.version.outputs.version }}. This is an automated update from: [${{ github.repository }}](${{github.repositoryUrl}})"
-          draft: false
+          makeLatest: true
           generateReleaseNotes: true
           token: ${{ secrets.PAT_TOKEN }}

@@ -29,9 +29,11 @@ jobs:
         id: vars
         working-directory: tmp
         run: |
+          echo "location: $(pwd)"
+          echo "finding all .npmrc files"
+          find / -name ".npmrc"
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" >> .npmrc
 
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4
@@ -81,6 +83,11 @@ jobs:
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          token: ${{ secrets.PAT_TOKEN }}
+          path: tmp
         run: |
           echo "location: $(pwd)"
           echo "finding all .npmrc files"

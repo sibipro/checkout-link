@@ -56,28 +56,17 @@ jobs:
         repo: ${{ fromJson(needs.discover.outputs.repos) }}
 
     steps:
-      - name: Checkout this repo to tmp
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}
-          token: ${{ secrets.PAT_TOKEN }}
-          path: tmp
-
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
           repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
-          path: target
 
-      - name: Move code from target to cwd
+      - name: "generate temporary npmrc"
         run: |
-          echo "location: $(pwd)"
-          ls -la
-          mv target/* .
-          # move everything except .git
-          mv target/.[^.]* .
-          rm -rf target
+          mkdir -p tmp
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" > tmp/.npmrc
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
 

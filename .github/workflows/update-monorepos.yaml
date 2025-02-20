@@ -27,13 +27,11 @@ jobs:
       - name: Discover dependent repos
         id: find
         run: |
-          REPOS=$(gh api search/code \
+          REPOS_JSON=$(gh api search/code \
            --method GET \
            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
-           --jq '.items[].repository.full_name' | sort -u | grep -v sibipro/checkout-link)
-
-          REPOS_JSON=$(echo "$REPOS" | jq -Rc 'split("\n")|map(select(length>0))')
-          echo "Debug - Found repos: $REPOS_JSON from $REPOS"
+           --jq '.items[].repository.full_name | select(. != "sibipro/checkout-link") | unique | sort | tostring')
+          echo "Debug - Found repos: $REPOS_JSON"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}

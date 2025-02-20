@@ -63,6 +63,12 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: tmp
 
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ matrix.repo }}
+          token: ${{ secrets.PAT_TOKEN }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
@@ -107,6 +113,9 @@ jobs:
         run: |
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
+
+      - name: Remove temporary files
+        run: rm -rf tmp
 
       # - name: Create Pull Request
       #   uses: peter-evans/create-pull-request@v7

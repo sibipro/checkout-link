@@ -84,6 +84,8 @@ jobs:
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
+          # add auth token to the .npmrc file
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" >> /.npmrc
           echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
           yarn config set npmScopes.sibipro.npmAuthToken ${{ secrets.PAT_TOKEN }}
           yarn install
@@ -104,17 +106,17 @@ jobs:
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          draft: false
-          branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
-          title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
-          body: |
-            Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
-            The repo for this package is: ${{ github.repositoryUrl }}.
+      # - name: Create Pull Request
+      #   uses: peter-evans/create-pull-request@v7
+      #   with:
+      #     token: ${{ secrets.PAT_TOKEN }}
+      #     draft: false
+      #     branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
+      #     title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
+      #     body: |
+      #       Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
+      #       The repo for this package is: ${{ github.repositoryUrl }}.
 
-            Release Notes: ${{ github.event.release.html_url || '' }}
-          labels: "dependencies, automation"
-          add-paths: .
+      #       Release Notes: ${{ github.event.release.html_url || '' }}
+      #     labels: "dependencies, automation"
+      #     add-paths: .

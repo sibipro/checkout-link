@@ -9,20 +9,17 @@ permissions:
   pull-requests: write
 
 jobs:
-  update-pnpm:
+  update-deps:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     strategy:
       matrix:
-        repo: ["sibipro/biggie"]
+        repo: ["sibipro/biggie", "sibipro/sibi"]
     steps:
-      - name: Checkout ${{ matrix.repo }}
+      - name: Check out the repo
         uses: actions/checkout@v4
         with:
           repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
-
-      - name: Setup PNPM
-        uses: pnpm/action-setup@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,74 +27,72 @@ jobs:
           registry-url: "https://registry.npmjs.org"
           scope: "@sibipro"
 
-      - name: Update Dependency (PNPM)
+      - name: Enable Corepack
+        run: corepack enable
+
+      # PNPM update step (runs only if a pnpm-lock.yaml is found)
+      - name: Update Dependency with pnpm
+        if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
-          # Strip 'v' prefix if present in version
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"  # remove leading 'v' if present
+          PACKAGE="@sibipro/checkout-link"
+          echo "Detected pnpm-lock.yaml; updating $PACKAGE to $VERSION via pnpm."
+          pnpm install
+          pnpm update -r "${PACKAGE}@${VERSION}" --prod
+          git diff
+
+      # Yarn update step (runs only if a yarn.lock is found)
+      - name: Update Dependency with yarn
+        if: ${{ hashFiles('yarn.lock') != '' }}
+        run: |
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
-          echo "Updating $PACKAGE to $VERSION"
-          pnpm update -r "$PACKAGE@$VERSION" --prod
+          echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
+          yarn install
+          yarn upgrade "${PACKAGE}@${VERSION}"
+          git diff
+
+      # NPM update step (runs only if a package-lock.json is found)
+      - name: Update Dependency with npm
+        if: ${{ hashFiles('package-lock.json') != '' }}
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          PACKAGE="@sibipro/checkout-link"
+          echo "Detected package-lock.json; updating $PACKAGE to $VERSION via npm."
+          npm ci
+          npm install "${PACKAGE}@${VERSION}"
+          git diff
+
+      # Fallback: no recognized lockfiles => default to npm
+      - name: Fallback (no lockfile)
+        if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          PACKAGE="@sibipro/checkout-link"
+          echo "No pnpm, yarn, or npm lockfile found; installing via npm by default."
+          npm install "${PACKAGE}@${VERSION}"
           git diff
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴/@sibipro/checkout-link/${{ github.event.release.tag_name }}
-          title: "bump sibipro/checkout-link to ${{ github.event.release.tag_name }}"
+          draft: true
+          branch: "bump/@sibipro/checkout-link/${{ github.event.release.tag_name }}"
+          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
-            Automatically updating sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
+            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
             The repo for this package is: (${{ github.repositoryUrl }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}
           labels: "dependencies, automation"
           add-paths: |
             pnpm-lock.yaml
-            package.json
-            **/package.json
-
-  update-yarn:
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    strategy:
-      matrix:
-        repo: ["sibipro/sibi"]
-    steps:
-      - name: Checkout ${{ matrix.repo }}
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ matrix.repo }}
-          token: ${{ secrets.PAT_TOKEN }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          registry-url: "https://registry.npmjs.org"
-          scope: "@sibipro"
-
-      - name: Update Dependency
-        run: |
-          # Strip 'v' prefix if present in version
-          VERSION="${{ github.event.release.tag_name}}"
-          VERSION="${VERSION#v}"
-          PACKAGE="@sibipro/checkout-link"
-          yarn upgrade "$PACKAGE@$VERSION"
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          draft: true
-          token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴/@sibipro/checkout-link/${{ github.event.release.tag_name }}
-          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
-          body: |
-            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
-            The repo for this package is: (${{ github.event.repository.html_url || github.repository }}).
-
-            Release Notes: ${{ github.event.release.html_url || '' }}
-          labels: "dependencies, automation"
-          add-paths: |
             yarn.lock
             package.json
+            package-lock.json
             **/package.json

@@ -4,6 +4,13 @@ on:
   release:
     types: [published, released]
 
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Package to update"
+        required: true
+        default: "@sibipro/checkout-link"
+
 permissions:
   contents: write
   pull-requests: write
@@ -59,7 +66,7 @@ jobs:
       - name: Update Dependency with pnpm
         if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.package }}"
           VERSION="${VERSION#v}"  # remove leading 'v' if present
           PACKAGE="@sibipro/checkout-link"
           echo "Detected pnpm-lock.yaml; updating $PACKAGE to $VERSION via pnpm."
@@ -69,7 +76,7 @@ jobs:
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.package }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
@@ -80,7 +87,7 @@ jobs:
       - name: Update Dependency with npm
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.package }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           echo "Detected package-lock.json; updating $PACKAGE to $VERSION via npm."
@@ -91,7 +98,7 @@ jobs:
       - name: Fallback (no lockfile)
         if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
         run: |
-          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name || inputs.package }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
@@ -102,10 +109,10 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
           draft: false
-          branch: "bump/@sibipro/checkout-link/${{ github.event.release.tag_name }}"
-          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
+          branch: "bump/@sibipro/checkout-link/${{ github.event.release.tag_name || inputs.package }}"
+          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name || inputs.package }}"
           body: |
-            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
+            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name || inputs.package }}.
             The repo for this package is: ${{ github.repositoryUrl }}.
 
             Release Notes: ${{ github.event.release.html_url || '' }}

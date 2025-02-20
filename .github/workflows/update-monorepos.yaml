@@ -30,6 +30,7 @@ jobs:
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
+          echo "Updating $PACKAGE to $VERSION"
           pnpm update -r "$PACKAGE@$VERSION" --prod
           git diff
 

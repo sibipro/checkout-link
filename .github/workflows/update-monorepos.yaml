@@ -84,10 +84,10 @@ jobs:
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
-          # add auth token to the .npmrc file
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" >> /.npmrc
-          echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
-          yarn config set npmScopes.sibipro.npmAuthToken ${{ secrets.PAT_TOKEN }}
+          yarn config set "@sibipro:registry" "https://npm.pkg.github.com"
+          yarn config set "@sibipro:always-auth" true
+          yarn config set "@sibipro:npmAuthToken" ${{ secrets.PAT_TOKEN }}
+
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 

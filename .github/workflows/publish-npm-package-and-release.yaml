@@ -31,6 +31,8 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - uses: actions/download-artifact@v4
+      - name: List downloaded files
+        run: ls -R .
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:

@@ -104,11 +104,11 @@ jobs:
           echo "location: $(pwd)"
           echo "finding all .npmrc files"
           find . -name ".npmrc"
-          echo "temporary npmrc is: $(cat ../tmp/.npmrc)"
+          echo "temporary npmrc is: $(cat ./tmp/.npmrc | wc -l) lines"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:
-          NPM_CONFIG_USERCONFIG: ../tmp/.npmrc
+          NPM_CONFIG_USERCONFIG: ./tmp/.npmrc
           NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       # NPM update step (runs only if a package-lock.json is found)

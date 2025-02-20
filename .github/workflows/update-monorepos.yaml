@@ -88,8 +88,10 @@ jobs:
           yarn config set npmScopes.sibipro.npmAuthToken "$NPM_TOKEN"
           yarn config set npmScopes.sibipro.npmAlwaysAuth true
           yarn config set npmScopes.sibipro.registry "https://npm.pkg.github.com"
+          yarn remove "${{ needs.discover.outputs.package }}" # just for a sec
+
           yarn install
-          yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
+          yarn add "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:
           NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
 

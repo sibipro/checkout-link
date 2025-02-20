@@ -27,11 +27,10 @@ jobs:
 
       - name: Get package name and version
         id: vars
+        working-directory: tmp
         run: |
-          git sparse-checkout set package.json
-
-          echo "package=$(jq -r '.name' ./tmp/package.json)" >> "$GITHUB_OUTPUT"
-          echo "version=$(jq -r '.version' ./tmp/package.json)" >> "$GITHUB_OUTPUT"
+          echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
+          echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
 
       - name: Remove tmp dir
         run: rm -rf tmp
@@ -78,12 +77,14 @@ jobs:
       - name: Update Dependency with pnpm
         if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
+          echo "Detected pnpm-lock.yaml; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via pnpm."
           pnpm update -r "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
+          echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
           yarn config set npmScopes.sibipro.npmAuthToken ${{ secrets.PAT_TOKEN }}
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
@@ -92,6 +93,7 @@ jobs:
       - name: Update Dependency with npm
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
+          echo "Detected package-lock.json; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via npm."
           npm ci
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 

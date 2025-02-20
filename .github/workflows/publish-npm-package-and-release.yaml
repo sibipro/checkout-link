@@ -23,14 +23,18 @@ jobs:
       - run: npm run build --declaration
       - uses: actions/upload-artifact@v4
         with:
-          name: dist
-          path: dist/
+          name: package-files
+          path: |
+            dist/
+            package.json
 
   publish_npm_package:
     needs: [test, build]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          name: package-files
       - name: List downloaded files
         run: ls -R .
       - uses: actions/setup-node@v4
@@ -46,6 +50,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          name: package-files
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
@@ -60,6 +66,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/download-artifact@v4
+        with:
+          name: package-files
       - uses: ncipollo/release-action@v1
         with:
           artifacts: "dist/**"

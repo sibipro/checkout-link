@@ -63,12 +63,6 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: tmp
 
-      - name: What does the filesystem look like?
-        run: |
-          echo "location: $(pwd)"
-          echo "finding all .npmrc files"
-          find . -name ".npmrc"
-
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:
@@ -80,9 +74,9 @@ jobs:
         run: |
           echo "location: $(pwd)"
           ls -la
-          echo "entire filesystem:"
-          find . -type f
           mv target/* .
+          mv target/.* .
+          rm -rf target
           echo "after move:"
           ls -la
           echo "entire filesystem:"

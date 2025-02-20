@@ -29,7 +29,7 @@ jobs:
           # Strip 'v' prefix if present in version
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
-          PACKAGE="${{ github.event.release.name }}"
+          PACKAGE="@sibipro/checkout-link"
           pnpm update -r "$PACKAGE@$VERSION" --prod
           git diff
 
@@ -38,10 +38,10 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/${{ github.event.release.name }}/${{ github.event.release.tag_name }}
-          title: "bump ${{ github.event.release.name }} to ${{ github.event.release.tag_name }}"
+          branch: 🏴‍☠️/@sibipro/checkout-link/${{ github.event.release.tag_name }}
+          title: "bump sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
-            Automatically updating ${{ github.event.release.name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
+            Automatically updating sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
             The repo for this package is: (${{ github.repositoryUrl }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}
@@ -72,7 +72,7 @@ jobs:
           # Strip 'v' prefix if present in version
           VERSION="${{ github.event.release.tag_name}}"
           VERSION="${VERSION#v}"
-          PACKAGE="${{ github.event.release.name }}"
+          PACKAGE="@sibipro/checkout-link"
           yarn upgrade "$PACKAGE@$VERSION"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -82,10 +82,10 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/${{ github.event.release.name }}/${{ github.event.release.tag_name }}
-          title: "bump ${{ github.event.release.name }} to ${{ github.event.release.tag_name }}"
+          branch: 🏴‍☠️/@sibipro/checkout-link/${{ github.event.release.tag_name }}
+          title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
-            Automatically updating ${{ github.event.release.name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
+            Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
             The repo for this package is: (${{ github.event.repository.html_url || github.repository }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}

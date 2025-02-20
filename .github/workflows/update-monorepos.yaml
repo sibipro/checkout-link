@@ -78,7 +78,15 @@ jobs:
 
       - name: Move code from target to cwd
         run: |
+          echo "location: $(pwd)"
+          ls -la
+          echo "entire filesystem:"
+          find . -type f
           mv target/* .
+          echo "after move:"
+          ls -la
+          echo "entire filesystem:"
+          find . -type f
       - name: Setup Node.js
         uses: actions/setup-node@v4
 

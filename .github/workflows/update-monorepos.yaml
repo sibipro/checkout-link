@@ -63,6 +63,12 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           path: tmp
 
+      - name: What does the filesystem look like?
+        run: |
+          echo "location: $(pwd)"
+          echo "finding all .npmrc files"
+          find . -name ".npmrc"
+
       - name: Checkout target repo
         uses: actions/checkout@v4
         with:

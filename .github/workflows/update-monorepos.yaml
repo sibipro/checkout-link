@@ -29,11 +29,12 @@ jobs:
         id: vars
         working-directory: tmp
         run: |
-          echo "location: $(pwd)"
-          echo "finding all .npmrc files"
-          find / -name ".npmrc"
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
+          echo "location: $(pwd)"
+          echo "finding all .npmrc files"
+          find . -name ".npmrc"
+          echo "temporary npmrc is: $(cat tmp/.npmrc)"
 
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4

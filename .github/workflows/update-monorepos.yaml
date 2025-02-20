@@ -23,9 +23,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          registry-url: "https://registry.npmjs.org"
-          scope: "@sibipro"
 
       - name: Install latest corepack
         run: npm install --global corepack@latest

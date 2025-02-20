@@ -80,7 +80,7 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          draft: true
+          draft: false
           branch: "bump/@sibipro/checkout-link/${{ github.event.release.tag_name }}"
           title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |

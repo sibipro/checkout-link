@@ -31,39 +31,51 @@ jobs:
           name: dist
           path: dist/
 
-  publish:
+  publish_npm:
+    needs: [test, build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: JS-DevTools/npm-publish@v3
+        with:
+          access: public
+          token: ${{ secrets.NPM_TOKEN }}
+
+  publish_github_package:
     needs: [test, build]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
-      - name: Get version and package name
-        id: version
-        run: |
-          version=$(node -p "require('./package.json').version")
-          package_name=$(node -p "require('./package.json').name")
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "package_name=$package_name" >> $GITHUB_OUTPUT
-      - name: Publish to NPM Registry
-        uses: JS-DevTools/npm-publish@v3
+      - uses: JS-DevTools/npm-publish@v3
         with:
-          token: ${{ secrets.NPM_TOKEN }}
-          registry: "https://registry.npmjs.org"
           access: public
-      - name: Publish to GitHub Registry
-        uses: JS-DevTools/npm-publish@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           registry: "https://npm.pkg.github.com"
-          access: public
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  github_release:
+    needs: [test, build]
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:

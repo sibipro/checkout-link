@@ -5,11 +5,6 @@ on:
     types: [published, released]
 
   workflow_dispatch:
-    inputs:
-      package:
-        description: "Package to update"
-        required: true
-        default: "@sibipro/checkout-link"
 
 permissions:
   contents: write
@@ -17,7 +12,7 @@ permissions:
 
 jobs:
   discover:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     outputs:
       repos: ${{ steps.find.outputs.repos }}
     steps:
@@ -44,7 +39,7 @@ jobs:
         run: |
           REPOS_JSON=$(gh api search/code \
            --method GET \
-           -f q='org:sibipro "${{ inputs.package}}" in:file filename:package.json' \
+           -f q='org:${{ github.repository_owner }} "${{ steps.vars.outputs.package }}" in:file filename:package.json' \
            --jq '[.items[].repository.full_name | select(. != "${{ github.repository }}")] | unique | sort')
           echo "Debug - Found repos: $REPOS_JSON"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"

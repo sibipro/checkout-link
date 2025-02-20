@@ -85,7 +85,7 @@ jobs:
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:
-          NPM_CONFIG_USERCONFIG: ./tmp/.npmrc
+          NPM_CONFIG_USERCONFIG: tmp/.npmrc
           NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       # NPM update step (runs only if a package-lock.json is found)

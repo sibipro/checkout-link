@@ -74,8 +74,6 @@ jobs:
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           yarn upgrade "$PACKAGE@$VERSION"
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7

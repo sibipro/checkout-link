@@ -27,6 +27,7 @@ jobs:
 
       - name: Get package name and version
         id: vars
+        working-directory: tmp
         run: |
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"

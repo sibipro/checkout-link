@@ -56,7 +56,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   github_release:
-    needs: [test, build]
+    needs: [publish_npm_package, publish_github_package]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
       contents: write
@@ -72,22 +72,6 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           makeLatest: true
+          allowUpdates: true
           token: ${{ secrets.PAT_TOKEN }}
           tag: ${{ steps.read_package.outputs.version }}
-
-  emit_publish_event:
-    needs: [publish_npm_package, publish_github_package]
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    steps:
-      - name: Read package.json
-        id: read_package
-        run: |
-          echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
-          echo "name=$(jq -r '.name' package.json)" >> $GITHUB_OUTPUT
-
-      - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
-          event-type: npm-package-published
-          client-payload: '{"package_name": "${{ steps.read_package.outputs.name }}", "version": "${{ steps.read_package.outputs.version }}"}'

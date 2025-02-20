@@ -18,11 +18,12 @@ jobs:
       package: ${{ steps.vars.outputs.package }}
       version: ${{ steps.vars.outputs.version }}
     steps:
-      - name: Download this release to tmp
-        uses: actions/download-artifact@v4
+      - name: Checkout this repo to tmp
+        uses: actions/checkout@v4
         with:
-          name: package-files
-          path: package.json
+          repository: ${{ github.repository }}
+          token: ${{ secrets.PAT_TOKEN }}
+          path: tmp
 
       - name: Get package name and version
         id: vars
@@ -30,8 +31,8 @@ jobs:
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Delete tmp package.json
-        run: rm package.json
+      - name: Remove tmp dir
+        run: rm -rf tmp
 
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4

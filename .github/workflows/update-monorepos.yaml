@@ -30,7 +30,7 @@ jobs:
           REPOS_JSON=$(gh api search/code \
            --method GET \
            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
-           --jq '.items[].repository.full_name | select(. != "sibipro/checkout-link") | unique | sort | tostring')
+           --jq '[.items[].repository.full_name | select(. != "sibipro/checkout-link")] | unique | sort')
           echo "Debug - Found repos: $REPOS_JSON"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
         env:

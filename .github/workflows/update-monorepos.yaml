@@ -74,13 +74,11 @@ jobs:
         with:
           repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
+          path: target
 
-      - name: What does the filesystem look like now?
+      - name: Move code from target to cwd
         run: |
-          echo "location: $(pwd)"
-          echo "finding all .npmrc files"
-          find . -name ".npmrc"
-
+          mv target/* .
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
@@ -92,28 +90,28 @@ jobs:
 
       # PNPM update step (runs only if a pnpm-lock.yaml is found)
       - name: Update Dependency with pnpm
-        if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
+        if: ${{ hashFiles('target/pnpm-lock.yaml') != '' }}
         run: |
           echo "Detected pnpm-lock.yaml; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via pnpm."
           pnpm update -r "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
-        if: ${{ hashFiles('yarn.lock') != '' }}
+        if: ${{ hashFiles('target/yarn.lock') != '' }}
         run: |
           echo "location: $(pwd)"
           echo "finding all .npmrc files"
           find . -name ".npmrc"
-          echo "temporary npmrc is: $(cat tmp/.npmrc)"
+          echo "temporary npmrc is: $(cat ../tmp/.npmrc)"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:
-          NPM_CONFIG_USERCONFIG: tmp/.npmrc
+          NPM_CONFIG_USERCONFIG: ../tmp/.npmrc
           NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm
-        if: ${{ hashFiles('package-lock.json') != '' }}
+        if: ${{ hashFiles('target/package-lock.json') != '' }}
         run: |
           echo "Detected package-lock.json; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via npm."
           npm ci
@@ -121,7 +119,7 @@ jobs:
 
       # Fallback: no recognized lockfiles => default to npm
       - name: Fallback (no lockfile)
-        if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
+        if: ${{ hashFiles('target/pnpm-lock.yaml') == '' && hashFiles('target/yarn.lock') == '' && hashFiles('target/package-lock.json') == '' }}
         run: |
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"

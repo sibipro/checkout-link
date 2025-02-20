@@ -70,8 +70,6 @@ jobs:
 
       - name: Update Dependency
         run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Create Pull Request
         uses: ./.github/actions/create-dependency-pr

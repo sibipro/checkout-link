@@ -4,7 +4,7 @@
   "compilerOptions": {
     "lib": [
       "ES2024",
-      "DOM",
+      "DOM"
     ],
     "target": "ES2015",
     "esModuleInterop": true,
@@ -13,7 +13,9 @@
     "skipLibCheck": true,
     "strict": true,
     "incremental": true,
-    "outDir": "./dist",
+    "outDir": "./dist/esm",
+    "declaration": true,
+    "module": "ESNext"
   },
   "exclude": [
     "node_modules"

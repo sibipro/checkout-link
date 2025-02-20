@@ -30,11 +30,8 @@ jobs:
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
           PACKAGE="${{ github.event.release.name }}"
-          # If triggered by release, use the repository name as package name
-          if [ -z "$PACKAGE" ]; then
-            PACKAGE="${{ github.event.release.name }}"
-          fi
           pnpm update -r "$PACKAGE@$VERSION" --prod
+          git diff
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
@@ -45,7 +42,7 @@ jobs:
           title: "bump ${{ github.event.release.name }} to ${{ github.event.release.tag_name }}"
           body: |
             Automatically updating ${{ github.event.release.name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
-            The repo for this package is: (${{ github.event.repository.html_url || github.repository }}).
+            The repo for this package is: (${{ github.repositoryUrl }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}
           labels: "dependencies, automation"
@@ -54,15 +51,6 @@ jobs:
             yarn.lock
             package.json
             **/package.json
-
-      - name: Check PR creation
-        shell: bash
-        run: |
-          if [ "${{ steps.create-pr.outputs.pull-request-created }}" != "true" ]; then
-            echo "No PR was created. This could mean there were no changes to commit."
-            exit 1
-          fi
-          echo "PR created successfully: ${{ steps.create-pr.outputs.pull-request-url }}"
 
   update-yarn:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
@@ -107,12 +95,3 @@ jobs:
             yarn.lock
             package.json
             **/package.json
-
-      - name: Check PR creation
-        shell: bash
-        run: |
-          if [ "${{ steps.create-pr.outputs.pull-request-created }}" != "true" ]; then
-            echo "No PR was created. This could mean there were no changes to commit."
-            exit 1
-          fi
-          echo "PR created successfully: ${{ steps.create-pr.outputs.pull-request-url }}"

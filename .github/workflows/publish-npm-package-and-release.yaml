@@ -74,3 +74,4 @@ jobs:
           makeLatest: true
           token: ${{ secrets.PAT_TOKEN }}
           tag: ${{ steps.read_package.outputs.version }}
+          name: ${{ steps.read_package.outputs.name }}

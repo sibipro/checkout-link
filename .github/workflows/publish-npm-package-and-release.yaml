@@ -54,10 +54,9 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "package_name=$package_name" >> $GITHUB_OUTPUT
       - run: |
-          npm publish --access public
-          npm publish --access public --registry https://npm.pkg.github.com
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN="${{ secrets.NPM_TOKEN }}" npm publish --access public
+          NPM_TOKEN="${{ github.token }}" npm publish --access public --registry https://npm.pkg.github.com
+
       - name: Trigger monorepo PRs
         uses: peter-evans/repository-dispatch@v3
         with:

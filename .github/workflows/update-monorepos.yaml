@@ -15,6 +15,8 @@ jobs:
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     outputs:
       repos: ${{ steps.find.outputs.repos }}
+      package: ${{ steps.vars.outputs.package }}
+      version: ${{ steps.vars.outputs.version }}
     steps:
       - name: Download this release to tmp
         uses: actions/download-artifact@v4
@@ -73,41 +75,41 @@ jobs:
       - name: Update Dependency with pnpm
         if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
-          echo "Detected pnpm-lock.yaml; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via pnpm."
-          pnpm update -r "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}" --prod
+          echo "Detected pnpm-lock.yaml; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via pnpm."
+          pnpm update -r "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
-          echo "Detected yarn.lock; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via yarn."
+          echo "Detected yarn.lock; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via yarn."
           yarn
-          yarn update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
+          yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm
         if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
-          echo "Detected package-lock.json; updating ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }} via npm."
+          echo "Detected package-lock.json; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via npm."
           npm ci
-          npm update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
+          npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
       # Fallback: no recognized lockfiles => default to npm
       - name: Fallback (no lockfile)
         if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
         run: |
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
-          npm update "${{ steps.vars.outputs.package }}@${{ steps.vars.outputs.version }}"
+          npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
           draft: false
-          branch: "bump/${{ steps.vars.outputs.package }}/${{ steps.vars.outputs.version }}"
-          title: "bump ${{ steps.vars.outputs.package }} to ${{ steps.vars.outputs.version }}"
+          branch: "bump/${{ needs.discover.outputs.package }}/${{ needs.discover.outputs.version }}"
+          title: "bump ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }}"
           body: |
-            Automatically updating ${{ steps.vars.outputs.package }} in `${{ matrix.repo }}` to version ${{ steps.vars.outputs.version }}.
+            Automatically updating ${{ needs.discover.outputs.package }} in `${{ matrix.repo }}` to version ${{ needs.discover.outputs.version }}.
             The repo for this package is: ${{ github.repositoryUrl }}.
 
             Release Notes: ${{ github.event.release.html_url || '' }}

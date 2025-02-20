@@ -71,7 +71,6 @@ jobs:
           echo "name=$(jq -r '.name' package.json)" >> $GITHUB_OUTPUT
       - uses: ncipollo/release-action@v1
         with:
-          makeLatest: true
           token: ${{ secrets.PAT_TOKEN }}
           tag: ${{ steps.read_package.outputs.version }}
           name: ${{ steps.read_package.outputs.name }}

@@ -79,6 +79,12 @@ jobs:
     needs: [publish_npm_package, publish_github_package]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
+      - name: Read package.json
+        id: read_package
+        run: |
+          echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
+          echo "name=$(jq -r '.name' package.json)" >> $GITHUB_OUTPUT
+
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v3
         with:

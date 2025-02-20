@@ -29,10 +29,9 @@ jobs:
           # 1. Search code in the 'sibipro' org for references to '@sibipro/checkout-link'
           #    ignoring the sibipro/checkout-link repo itself
           REPOS=$(gh api search/code \
-            --method GET \
-            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json -repo:sibipro/checkout-link' \
-            --jq '.items[].repository.full_name'
-          )
+           --method GET \
+           -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
+           --jq '.items[].repository.full_name' | sort -u | grep -v sibipro/checkout-link)
 
           # 2. Convert multiline output to a JSON array
           #    Then store that array as 'repos' in the job output

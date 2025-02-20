@@ -32,9 +32,6 @@ jobs:
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Remove tmp dir
-        run: rm -rf tmp
-
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4
 
@@ -48,7 +45,8 @@ jobs:
           echo "Debug - Found repos: $REPOS_JSON"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
         env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NPM_TOKEN: ${{ secrets.PAT_TOKEN }}
+          NPM_CONFIG_USERCONFIG: ./tmp/.npmrc
 
   update-deps:
     needs: discover

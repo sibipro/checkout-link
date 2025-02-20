@@ -72,6 +72,5 @@ jobs:
       - uses: ncipollo/release-action@v1
         with:
           makeLatest: true
-          allowUpdates: true
           token: ${{ secrets.PAT_TOKEN }}
           tag: ${{ steps.read_package.outputs.version }}

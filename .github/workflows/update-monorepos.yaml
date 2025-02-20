@@ -3,14 +3,6 @@ name: Update Monorepos Dependency
 on:
   release:
     types: [published, released]
-  workflow_dispatch:
-    inputs:
-      package_name:
-        description: "Package name to update"
-        required: true
-      version:
-        description: "Version to update to"
-        required: true
 
 permissions:
   contents: write
@@ -32,15 +24,15 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
 
-      - name: Update Dependency
+      - name: Update Dependency (PNPM)
         run: |
           # Strip 'v' prefix if present in version
-          VERSION="${{ github.event.release.tag_name || inputs.version }}"
+          VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
-          PACKAGE="${{ inputs.package_name }}"
+          PACKAGE="${{ github.event.release.name }}"
           # If triggered by release, use the repository name as package name
           if [ -z "$PACKAGE" ]; then
-            PACKAGE="${{ github.event.repository.name }}"
+            PACKAGE="${{ github.event.release.name }}"
           fi
           pnpm update -r "$PACKAGE@$VERSION" --prod
 
@@ -49,10 +41,10 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/${{ github.event.repository.name || inputs.package_name }}/${{ github.event.release.tag_name || inputs.version }}
-          title: "bump ${{ github.event.repository.name || inputs.package_name }} to ${{ github.event.release.tag_name || inputs.version }}"
+          branch: 🏴‍☠️/${{ github.event.release.name }}/${{ github.event.release.tag_name }}
+          title: "bump ${{ github.event.release.name }} to ${{ github.event.release.tag_name }}"
           body: |
-            Automatically updating ${{ github.event.repository.name || inputs.package_name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name || inputs.version }}.
+            Automatically updating ${{ github.event.release.name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
             The repo for this package is: (${{ github.event.repository.html_url || github.repository }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}
@@ -90,13 +82,9 @@ jobs:
       - name: Update Dependency
         run: |
           # Strip 'v' prefix if present in version
-          VERSION="${{ github.event.release.tag_name || inputs.version }}"
+          VERSION="${{ github.event.release.tag_name}}"
           VERSION="${VERSION#v}"
-          PACKAGE="${{ inputs.package_name }}"
-          # If triggered by release, use the repository name as package name
-          if [ -z "$PACKAGE" ]; then
-            PACKAGE="${{ github.event.repository.name }}"
-          fi
+          PACKAGE="${{ github.event.release.name }}"
           yarn upgrade "$PACKAGE@$VERSION"
         env:
           NPM_AUTH_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -106,10 +94,10 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/${{ github.event.repository.name || inputs.package_name }}/${{ github.event.release.tag_name || inputs.version }}
-          title: "bump ${{ github.event.repository.name || inputs.package_name }} to ${{ github.event.release.tag_name || inputs.version }}"
+          branch: 🏴‍☠️/${{ github.event.release.name }}/${{ github.event.release.tag_name }}
+          title: "bump ${{ github.event.release.name }} to ${{ github.event.release.tag_name }}"
           body: |
-            Automatically updating ${{ github.event.repository.name || inputs.package_name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name || inputs.version }}.
+            Automatically updating ${{ github.event.release.name }} in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
             The repo for this package is: (${{ github.event.repository.html_url || github.repository }}).
 
             Release Notes: ${{ github.event.release.html_url || '' }}

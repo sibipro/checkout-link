@@ -2,7 +2,7 @@ name: Update Monorepos Dependency
 
 on:
   repository_dispatch:
-    types: [npm-package-published]
+    types: [package_published]
   workflow_dispatch:
     inputs:
       package_name:

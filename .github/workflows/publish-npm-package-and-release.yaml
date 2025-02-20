@@ -6,30 +6,11 @@ on:
     paths: ["package.json", ".github/workflows/**"]
 
 jobs:
-  test:
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm ci
-      - run: npm run test:build
-
-  build:
-    runs-on: blacksmith-4vcpu-ubuntu-2204-arm
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - run: npm ci
-      - run: npm run build --declaration
-      - uses: actions/upload-artifact@v4
-        with:
-          name: package-files
-          path: |
-            dist/
-            package.json
+  build-and-test:
+    uses: ./.github/workflows/build-and-test.yaml
 
   publish_npm_package:
-    needs: [test, build]
+    needs: build-and-test
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     steps:
       - uses: actions/download-artifact@v4
@@ -41,7 +22,7 @@ jobs:
           token: ${{ secrets.NPM_TOKEN }}
 
   publish_github_package:
-    needs: [test, build]
+    needs: build-and-test
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
       packages: write
@@ -56,22 +37,14 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   github_release:
-    needs: [publish_npm_package, publish_github_package]
+    needs: [build-and-test, publish_npm_package, publish_github_package]
     runs-on: blacksmith-4vcpu-ubuntu-2204-arm
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: package-files
-      - name: Read package.json
-        id: read_package
-        run: |
-          echo "version=$(jq -r '.version' package.json)" >> $GITHUB_OUTPUT
-          echo "name=$(jq -r '.name' package.json)" >> $GITHUB_OUTPUT
       - uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.PAT_TOKEN }}
-          tag: ${{ steps.read_package.outputs.version }}
-          name: ${{ steps.read_package.outputs.name }}
+          tag: v${{ needs.build-and-test.outputs.version }}
+          name: ${{ needs.build-and-test.outputs.name }}
           allowUpdates: true

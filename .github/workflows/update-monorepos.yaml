@@ -21,6 +21,21 @@ jobs:
     outputs:
       repos: ${{ steps.find.outputs.repos }}
     steps:
+      - name: Download this release to tmp
+        uses: actions/download-artifact@v4
+        with:
+          name: package-files
+          path: package.json
+
+      - name: Get package name and version
+        id: vars
+        run: |
+          echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
+          echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Delete tmp package.json
+        run: rm package.json
+
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4
 
@@ -29,8 +44,8 @@ jobs:
         run: |
           REPOS_JSON=$(gh api search/code \
            --method GET \
-           -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
-           --jq '[.items[].repository.full_name | select(. != "sibipro/checkout-link")] | unique | sort')
+           -f q='org:sibipro "${{ inputs.package}}" in:file filename:package.json' \
+           --jq '[.items[].repository.full_name | select(. != "${{ github.repository }}")] | unique | sort')
           echo "Debug - Found repos: $REPOS_JSON"
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
         env:
@@ -58,15 +73,6 @@ jobs:
 
       - name: Enable Corepack
         run: corepack enable
-
-      - name: Set version variable
-        id: vars
-        run: |
-          VERSION="${{ github.event.release.tag_name || inputs.package }}"
-          VERSION="${VERSION#v}"  # remove leading 'v' if present
-          PACKAGE="${{ github.event.repository.name || inputs.package }}"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "package=@sibipro/$PACKAGE" >> "$GITHUB_OUTPUT"
 
       # PNPM update step (runs only if a pnpm-lock.yaml is found)
       - name: Update Dependency with pnpm

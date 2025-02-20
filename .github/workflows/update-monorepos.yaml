@@ -38,6 +38,8 @@ jobs:
           #    Then store that array as 'repos' in the job output
           REPOS_JSON=$(echo "$REPOS" | jq -Rs 'split("\n") | map(select(length>0))')
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
+    env:
+      GH_TOKEN: ${{ github.token }}
 
   update-deps:
     needs: discover

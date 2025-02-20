@@ -39,7 +39,7 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/@sibipro/checkout-link/${{ github.event.release.tag_name }}
+          branch: 🏴/@sibipro/checkout-link/${{ github.event.release.tag_name }}
           title: "bump sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
             Automatically updating sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.
@@ -80,7 +80,7 @@ jobs:
         with:
           draft: true
           token: ${{ secrets.PAT_TOKEN }}
-          branch: 🏴‍☠️/@sibipro/checkout-link/${{ github.event.release.tag_name }}
+          branch: 🏴/@sibipro/checkout-link/${{ github.event.release.tag_name }}
           title: "bump @sibipro/checkout-link to ${{ github.event.release.tag_name }}"
           body: |
             Automatically updating @sibipro/checkout-link in `${{ matrix.repo }}` to version ${{ github.event.release.tag_name }}.

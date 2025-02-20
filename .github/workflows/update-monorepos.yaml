@@ -31,7 +31,6 @@ jobs:
         run: |
           echo "package=$(jq -r '.name' package.json)" >> "$GITHUB_OUTPUT"
           echo "version=$(jq -r '.version' package.json)" >> "$GITHUB_OUTPUT"
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" >> .npmrc
 
       - name: Set up GitHub CLI
         uses: actions/setup-node@v4

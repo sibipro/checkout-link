@@ -67,6 +67,7 @@ jobs:
           mkdir -p tmp
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.PAT_TOKEN }}" > tmp/.npmrc
           echo "location: $(pwd)"
+          echo "it looks like this:" ls -la
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

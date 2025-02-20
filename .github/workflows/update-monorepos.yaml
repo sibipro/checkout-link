@@ -22,7 +22,6 @@ jobs:
     strategy:
       matrix:
         repo: ["sibipro/biggie"]
-      fail-fast: true
     steps:
       - name: Checkout ${{ matrix.repo }}
         uses: actions/checkout@v4
@@ -30,8 +29,8 @@ jobs:
           repository: ${{ matrix.repo }}
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
 
       - name: Update Dependency
         run: pnpm update -r "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}" --prod
@@ -49,7 +48,6 @@ jobs:
     strategy:
       matrix:
         repo: ["sibipro/sibi"]
-      fail-fast: true
     steps:
       - name: Checkout ${{ matrix.repo }}
         uses: actions/checkout@v4
@@ -59,8 +57,6 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 22
 
       - name: Update Dependency
         run: yarn upgrade "${{ github.event.client_payload.package_name || inputs.package_name }}@${{ github.event.client_payload.version || inputs.version }}"

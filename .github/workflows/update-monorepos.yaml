@@ -82,6 +82,7 @@ jobs:
       - name: Update Dependency with yarn
         if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
+          echo "temporary npmrc is: $(cat tmp/.npmrc)"
           yarn install
           yarn update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"
         env:

@@ -74,8 +74,9 @@ jobs:
         run: |
           echo "location: $(pwd)"
           ls -la
-          cp -r target/* .
-          cp -r target/\.* .
+          mv target/* .
+          # move everything except .git
+          mv target/.[^.]* .
           rm -rf target
       - name: Setup Node.js
         uses: actions/setup-node@v4

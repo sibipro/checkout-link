@@ -80,14 +80,14 @@ jobs:
 
       # PNPM update step (runs only if a pnpm-lock.yaml is found)
       - name: Update Dependency with pnpm
-        if: ${{ hashFiles('target/pnpm-lock.yaml') != '' }}
+        if: ${{ hashFiles('pnpm-lock.yaml') != '' }}
         run: |
           echo "Detected pnpm-lock.yaml; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via pnpm."
           pnpm update -r "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}" --prod
 
       # Yarn update step (runs only if a yarn.lock is found)
       - name: Update Dependency with yarn
-        if: ${{ hashFiles('target/yarn.lock') != '' }}
+        if: ${{ hashFiles('yarn.lock') != '' }}
         run: |
           echo "location: $(pwd)"
           echo "finding all .npmrc files"
@@ -101,7 +101,7 @@ jobs:
 
       # NPM update step (runs only if a package-lock.json is found)
       - name: Update Dependency with npm
-        if: ${{ hashFiles('target/package-lock.json') != '' }}
+        if: ${{ hashFiles('package-lock.json') != '' }}
         run: |
           echo "Detected package-lock.json; updating ${{ needs.discover.outputs.package }} to ${{ needs.discover.outputs.version }} via npm."
           npm ci
@@ -109,7 +109,7 @@ jobs:
 
       # Fallback: no recognized lockfiles => default to npm
       - name: Fallback (no lockfile)
-        if: ${{ hashFiles('target/pnpm-lock.yaml') == '' && hashFiles('target/yarn.lock') == '' && hashFiles('target/package-lock.json') == '' }}
+        if: ${{ hashFiles('pnpm-lock.yaml') == '' && hashFiles('yarn.lock') == '' && hashFiles('package-lock.json') == '' }}
         run: |
           echo "No pnpm, yarn, or npm lockfile found; updating via npm."
           npm update "${{ needs.discover.outputs.package }}@${{ needs.discover.outputs.version }}"

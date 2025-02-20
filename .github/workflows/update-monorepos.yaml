@@ -38,7 +38,6 @@ jobs:
           VERSION="${VERSION#v}"  # remove leading 'v' if present
           PACKAGE="@sibipro/checkout-link"
           echo "Detected pnpm-lock.yaml; updating $PACKAGE to $VERSION via pnpm."
-          pnpm install
           pnpm update -r "${PACKAGE}@${VERSION}" --prod
           git diff
 
@@ -50,8 +49,7 @@ jobs:
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
           echo "Detected yarn.lock; updating $PACKAGE to $VERSION via yarn."
-          yarn install
-          yarn upgrade "${PACKAGE}@${VERSION}"
+          yarn update "${PACKAGE}@${VERSION}"
           git diff
 
       # NPM update step (runs only if a package-lock.json is found)
@@ -63,7 +61,7 @@ jobs:
           PACKAGE="@sibipro/checkout-link"
           echo "Detected package-lock.json; updating $PACKAGE to $VERSION via npm."
           npm ci
-          npm install "${PACKAGE}@${VERSION}"
+          npm update "${PACKAGE}@${VERSION}"
           git diff
 
       # Fallback: no recognized lockfiles => default to npm
@@ -73,8 +71,8 @@ jobs:
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
           PACKAGE="@sibipro/checkout-link"
-          echo "No pnpm, yarn, or npm lockfile found; installing via npm by default."
-          npm install "${PACKAGE}@${VERSION}"
+          echo "No pnpm, yarn, or npm lockfile found; updating via npm."
+          npm update "${PACKAGE}@${VERSION}"
           git diff
 
       - name: Create Pull Request

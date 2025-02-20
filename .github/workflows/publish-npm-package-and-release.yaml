@@ -40,7 +40,6 @@ jobs:
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
-          access: public
           token: ${{ secrets.NPM_TOKEN }}
 
   publish_github_package:
@@ -55,7 +54,6 @@ jobs:
       - uses: actions/setup-node@v4
       - uses: JS-DevTools/npm-publish@v3
         with:
-          access: public
           registry: "https://npm.pkg.github.com"
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -70,10 +68,9 @@ jobs:
           name: package-files
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/**"
           makeLatest: true
-          generateReleaseNotes: true
           token: ${{ secrets.PAT_TOKEN }}
+          tag: v${{ github.event.package.version }}
 
   emit_publish_event:
     needs: [publish_npm_package, publish_github_package]

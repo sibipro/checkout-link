@@ -27,15 +27,12 @@ jobs:
       - name: Discover dependent repos
         id: find
         run: |
-          # 1. Search code in the 'sibipro' org for references to '@sibipro/checkout-link'
-          #    ignoring the sibipro/checkout-link repo itself
+          gh auth login --with-token <<< "${{ secrets.PAT_TOKEN }}"
           REPOS=$(gh api search/code \
            --method GET \
            -f q='org:sibipro "@sibipro/checkout-link" in:file filename:package.json' \
            --jq '.items[].repository.full_name' | sort -u | grep -v sibipro/checkout-link)
 
-          # 2. Convert multiline output to a JSON array
-          #    Then store that array as 'repos' in the job output
           REPOS_JSON=$(echo "$REPOS" | jq -Rs 'split("\n") | map(select(length>0))')
           echo "repos=$REPOS_JSON" >> "$GITHUB_OUTPUT"
           echo "Found repos: $REPOS_JSON"

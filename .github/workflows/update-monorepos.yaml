@@ -39,6 +39,7 @@ jobs:
       - name: Discover dependent repos
         id: find
         run: |
+          ls -la
           REPOS_JSON=$(gh api search/code \
            --method GET \
            -f q='org:${{ github.repository_owner }} "${{ steps.vars.outputs.package }}" in:file filename:package.json' \

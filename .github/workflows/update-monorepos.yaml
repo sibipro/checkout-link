@@ -74,13 +74,9 @@ jobs:
         run: |
           echo "location: $(pwd)"
           ls -la
-          mv target/* .
-          mv target/.* .
+          cp -r target/* .
+          cp -r target/\.* .
           rm -rf target
-          echo "after move:"
-          ls -la
-          echo "entire filesystem:"
-          find . -type f
       - name: Setup Node.js
         uses: actions/setup-node@v4
 

@@ -99,6 +99,14 @@ interface Props {
      * are provided.
      */
     fulfillmentMethodId?: string;
+
+    /**
+     * The ID of the property to ship to office. Must be provided if `fulfillmentMethodId` is set to `ship-to-office` and must
+     * not be provided if `fulfillmentMethodId` is set to anything else. If an invalid combination is provided, buildCheckoutLink
+     * will throw an ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch error.
+     */
+    shipToOfficePropertyId?: string;
+
     /**
      * If omitted, will default to the first available. If provided and not available, the Checkout UI will display a modal
      * telling the user that the date is not available and offer to use the first available date instead.
@@ -171,6 +179,7 @@ export const buildCheckoutLink = ({ addressSearch, specialInstructions, poNumber
       distributionCenterId,
       fulfillmentMethod,
       fulfillmentMethodId,
+      shipToOfficePropertyId,
       requestedFulfillmentDate,
       paymentMethodId,
       quantity,
@@ -193,10 +202,12 @@ export const buildCheckoutLink = ({ addressSearch, specialInstructions, poNumber
     url.searchParams.set(`${key}.shop`, shop);
 
     assert(!(fulfillmentMethod && fulfillmentMethodId), new ReceivedBothFulfillmentMethodAndFulfillmentMethodId());
+    assertShipToOfficePropertyIdAndFulfillmentMethodIdMatch(shipToOfficePropertyId, fulfillmentMethodId);
 
     if (distributionCenterId) url.searchParams.set(`${key}.distributionCenterId`, distributionCenterId);
     if (fulfillmentMethod) url.searchParams.set(`${key}.fulfillmentMethod`, fulfillmentMethod);
     if (fulfillmentMethodId) url.searchParams.set(`${key}.fulfillmentMethodId`, fulfillmentMethodId);
+    if (shipToOfficePropertyId) url.searchParams.set(`${key}.shipToOfficePropertyId`, shipToOfficePropertyId);
     if (requestedFulfillmentDate) url.searchParams.set(`${key}.requestedFulfillmentDate`, requestedFulfillmentDate);
     if (paymentMethodId) url.searchParams.set(`${key}.paymentMethodId`, paymentMethodId);
     if (quantity && quantity !== 1) url.searchParams.set(`${key}.quantity`, quantity.toString());
@@ -232,8 +243,24 @@ const findMaxUrlId = (urlIds: (string | undefined)[]) => {
 
 const isNotNaN = (value: number) => !Number.isNaN(value);
 
+const assertShipToOfficePropertyIdAndFulfillmentMethodIdMatch = (shipToOfficePropertyId: string | undefined, fulfillmentMethodId: string | undefined) => {
+  if (shipToOfficePropertyId && fulfillmentMethodId !== "ship-to-office") {
+    throw new ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch();
+  }
+
+  if (fulfillmentMethodId === "ship-to-office" && !shipToOfficePropertyId) {
+    throw new ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch();
+  }
+};
+
 export class ReceivedBothFulfillmentMethodAndFulfillmentMethodId extends Error {
   constructor() {
     super("fulfillmentMethod and fulfillmentMethodId are mutually exclusive, received both");
+  }
+}
+
+export class ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch extends Error {
+  constructor() {
+    super("shipToOfficePropertyId must be provided if and only if fulfillmentMethodId is set to `ship-to-office`");
   }
 }

@@ -1,6 +1,6 @@
 import { beforeEach } from "vitest";
 import { describe, it, expect } from "vitest";
-import { buildCheckoutLink, ReceivedBothFulfillmentMethodAndFulfillmentMethodId } from ".";
+import { buildCheckoutLink, ReceivedBothFulfillmentMethodAndFulfillmentMethodId, ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch } from ".";
 import { produce } from "immer";
 
 const product: NonNullable<NonNullable<Parameters<typeof buildCheckoutLink>[0]>["products"]>[number] = {
@@ -25,7 +25,9 @@ describe("buildCheckoutLink", () => {
     let result: ReturnType<typeof buildCheckoutLink>;
 
     beforeEach(() => {
-      result = buildCheckoutLink({ addressSearch: "123 Main St, Anytown, USA" });
+      result = buildCheckoutLink({
+        addressSearch: "123 Main St, Anytown, USA",
+      });
     });
 
     it("should return a checkout link with the address search parameter", () => {
@@ -51,7 +53,9 @@ describe("buildCheckoutLink", () => {
     let result: ReturnType<typeof buildCheckoutLink>;
 
     beforeEach(() => {
-      result = buildCheckoutLink({ specialInstructions: "Special instructions" });
+      result = buildCheckoutLink({
+        specialInstructions: "Special instructions",
+      });
     });
 
     it("should return a checkout link with the special instructions parameter", () => {
@@ -296,7 +300,13 @@ describe("buildCheckoutLink", () => {
     it("should throw an error", () => {
       expect(() => {
         return buildCheckoutLink({
-          products: [{ ...product, fulfillmentMethodId: "sibi-pickup", fulfillmentMethod: "PICKUP" }],
+          products: [
+            {
+              ...product,
+              fulfillmentMethodId: "sibi-pickup",
+              fulfillmentMethod: "PICKUP",
+            },
+          ],
         });
       }).toThrow(ReceivedBothFulfillmentMethodAndFulfillmentMethodId);
     });
@@ -496,7 +506,9 @@ describe("buildCheckoutLink", () => {
     let result: ReturnType<typeof buildCheckoutLink>;
 
     beforeEach(() => {
-      result = buildCheckoutLink({ products: [{ ...product, offeredWarranty: true }] });
+      result = buildCheckoutLink({
+        products: [{ ...product, offeredWarranty: true }],
+      });
     });
 
     it("should return a checkout link with the offeredWarranty parameter", () => {
@@ -547,6 +559,59 @@ describe("buildCheckoutLink", () => {
     it("should generate a url id for the products with no urlId that is one more than the highest urlId", () => {
       const url = new URL(result);
       expect(url.searchParams.get("4.shop")).not.toBeNull();
+    });
+  });
+
+  describe("when called with a fulfillmentMethodId of ship-to-office and a shipToOfficePropertyId", () => {
+    let result: ReturnType<typeof buildCheckoutLink>;
+
+    beforeEach(() => {
+      result = buildCheckoutLink({
+        products: [
+          {
+            ...product,
+            fulfillmentMethodId: "ship-to-office",
+            shipToOfficePropertyId: "123",
+          },
+        ],
+      });
+    });
+
+    it("should return a checkout link with the shipToOfficePropertyId parameter", () => {
+      const url = new URL(result);
+      expect(url.searchParams.get("1.shipToOfficePropertyId")).toBe("123");
+    });
+  });
+
+  describe("when called with a shipToOfficePropertyId and a fulfillmentMethodId other than ship-to-office", () => {
+    it("should throw an ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch error", () => {
+      expect(() => {
+        buildCheckoutLink({
+          products: [
+            {
+              ...product,
+              fulfillmentMethodId: "pickup",
+              shipToOfficePropertyId: "123",
+            },
+          ],
+        });
+      }).toThrow(ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch);
+    });
+  });
+
+  describe("when called with a fulfillmentMethodId of ship-to-office and no shipToOfficePropertyId", () => {
+    it("should throw an ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch error", () => {
+      expect(() => {
+        buildCheckoutLink({
+          products: [
+            {
+              ...product,
+              fulfillmentMethodId: "ship-to-office",
+              shipToOfficePropertyId: undefined,
+            },
+          ],
+        });
+      }).toThrow(ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch);
     });
   });
 });

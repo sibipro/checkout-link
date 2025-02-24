@@ -584,18 +584,23 @@ describe("buildCheckoutLink", () => {
   });
 
   describe("when called with a shipToOfficePropertyId and a fulfillmentMethodId other than ship-to-office", () => {
-    it("should throw an ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch error", () => {
-      expect(() => {
-        buildCheckoutLink({
-          products: [
-            {
-              ...product,
-              fulfillmentMethodId: "pickup",
-              shipToOfficePropertyId: "123",
-            },
-          ],
-        });
-      }).toThrow(ShippedToOfficePropertyIdAndFulfillmentMethodIdMismatch);
+    let result: ReturnType<typeof buildCheckoutLink>;
+
+    beforeEach(() => {
+      result = buildCheckoutLink({
+        products: [
+          {
+            ...product,
+            fulfillmentMethodId: "pickup",
+            shipToOfficePropertyId: "123",
+          },
+        ],
+      });
+    });
+
+    it("should return a checkout link without the shipToOfficePropertyId parameter", () => {
+      const url = new URL(result);
+      expect(url.searchParams.get("1.shipToOfficePropertyId")).toBeNull();
     });
   });
 
